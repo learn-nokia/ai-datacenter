@@ -1,0 +1,29 @@
+# README:
+# This setters file is meant for use in lab and non-prod deployments
+# to provide configuration for the EDA platform
+# Order of application of values is as below:
+# Priority is lowest to highest
+# 1. configs/try-eda-kpt-setters.yaml
+# 2. configs/kpt-setters.yaml
+# 3. prefs.mk
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: try-eda-apply-setter-fn-config
+data:
+  # Artifact server
+  ASVR_REQ_CPU: 100m
+  # Bootstrap server
+  BSVR_REQ_CPU: 100m
+  # EDA Cert Checker
+  ECC_REQ_CPU: 100m
+  # EDA Metrics Server
+  EMS_REQ_CPU: 100m
+  # Identity Server - Keycloak
+  KC_REQ_CPU: 250m
+  # Appstore Controller
+  ASC_REQ_CPU: 100m
+  # Identity Server Database - Postgres
+  PG_REQ_CPU: 100m
+  # Flow Engine
+  FE_REQ_CPU: 100m

@@ -1,0 +1,17 @@
+apiVersion: v1
+data:
+  sim.yaml: |-
+    items:
+      - metadata:
+          creationTimestamp: null
+        spec:
+          topology:
+            - node: '*'
+              interface: '*'
+              simNode: testman-default
+          simNodes:
+            - name: testman-default
+              type: TestMan
+kind: ConfigMap
+metadata:
+  name: eda-topology-sim
