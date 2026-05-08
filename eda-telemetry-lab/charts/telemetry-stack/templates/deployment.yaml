@@ -266,7 +266,7 @@ spec:
             - name: KAFKA_LISTENERS
               value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://localhost:9093"
             - name: KAFKA_ADVERTISED_LISTENERS
-              value: "PLAINTEXT://kafka.eda-telemetry.svc.cluster.local:9092"
+              value: "PLAINTEXT://kafka.eda.svc.cluster.local:9092"
             - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
               value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
             - name: KAFKA_CONTROLLER_LISTENER_NAMES

@@ -2,7 +2,7 @@ apiVersion: services.eda.nokia.com/v2
 kind: VirtualNetwork
 metadata:
   name: macvrf1001
-  namespace: eda-telemetry
+  namespace: eda
 spec:
   bridgeDomains:
   - name: macvrf1001

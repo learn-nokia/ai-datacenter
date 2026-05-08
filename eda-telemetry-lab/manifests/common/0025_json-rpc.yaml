@@ -2,7 +2,7 @@ apiVersion: config.eda.nokia.com/v1
 kind: Configlet
 metadata:
   name: jsonrpc
-  namespace: eda-telemetry
+  namespace: eda
 spec:
   configs:
     - config: |-

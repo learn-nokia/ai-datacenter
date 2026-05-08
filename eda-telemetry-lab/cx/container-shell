@@ -10,7 +10,7 @@ SIMNODE_NAME=${1}
 
 # user namespace to look up the TopoNode in
 # default is eda
-USER_NS=${USER_NS:-eda-telemetry}
+USER_NS=${USER_NS:-eda}
 
 # core namespace to cx pods in
 # default is eda

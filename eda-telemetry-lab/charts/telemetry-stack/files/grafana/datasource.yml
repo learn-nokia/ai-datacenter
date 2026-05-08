@@ -4,7 +4,7 @@ apiVersion: 1
 datasources:
   - name: Prometheus
     type: prometheus
-    url: http://prometheus.eda-telemetry.svc:9090
+    url: http://prometheus.eda.svc:9090
   - name: Loki
     type: loki
-    url: http://loki.eda-telemetry.svc:3100
+    url: http://loki.eda.svc:3100

@@ -2,7 +2,7 @@ apiVersion: config.eda.nokia.com/v1
 kind: Configlet
 metadata:
   name: syslog-config
-  namespace: eda-telemetry
+  namespace: eda
 spec:
   configs:
   - config: |-
@@ -11,7 +11,7 @@ spec:
               "network-instance": "mgmt",
               "remote-server": [
                   {
-                      "host": "alloy.eda-telemetry",
+                      "host": "alloy.eda",
                       "transport": "udp",
                       "remote-port": 1514,
                       "facility": [

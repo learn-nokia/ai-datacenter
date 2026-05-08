@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: control-panel
-  namespace: eda-telemetry
+  namespace: eda
   labels:
     app: control-panel
 spec:
@@ -37,7 +37,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: control-panel
-  namespace: eda-telemetry
+  namespace: eda
 spec:
   selector:
     app: control-panel
@@ -54,4 +54,4 @@ metadata:
   namespace: eda-system
 spec:
   authType: atDestination
-  rootUrl: http://control-panel.eda-telemetry.svc.cluster.local/
+  rootUrl: http://control-panel.eda.svc.cluster.local/

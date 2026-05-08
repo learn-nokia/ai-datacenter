@@ -4,7 +4,7 @@ set -e
 
 
 # namespace where the topology configmap is stored (default: eda)
-TOPO_NS=${TOPO_NS:-eda-telemetry}
+TOPO_NS=${TOPO_NS:-eda}
 # namespace where the toolbox pod is running (default: eda-system)
 CORE_NS=${CORE_NS:-eda-system}
 

@@ -2,7 +2,7 @@ apiVersion: fabrics.eda.nokia.com/v1
 kind: Fabric
 metadata:
   name: myfabric
-  namespace: eda-telemetry
+  namespace: eda
 spec:
   interSwitchLinks:
     ipMTU: 9200

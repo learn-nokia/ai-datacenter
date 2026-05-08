@@ -2,10 +2,10 @@
 # A script for launching bidirectional traffic tests.
 # This script restarts iperf3 servers before starting clients to ensure clean connections.
 # Kubernetes deployments in namespace eda-system:
-#         cx-eda-telemetry--server1-sim (iperf server on server1)
-#         cx-eda-telemetry--server2-sim (iperf server on server2)
-#         cx-eda-telemetry--server3-sim (iperf client that will connect to server2)
-#         cx-eda-telemetry--server4-sim (iperf client that will connect to server1)
+#         cx-eda--server1-sim (iperf server on server1)
+#         cx-eda--server2-sim (iperf server on server2)
+#         cx-eda--server3-sim (iperf client that will connect to server2)
+#         cx-eda--server4-sim (iperf client that will connect to server1)
 #
 # The following test pairs are configured:
 #   • server4 (10.10.10.4)  -> server1 (10.10.10.1)  on port 5201
@@ -37,10 +37,10 @@ WINDOW=4K                         # Window size
 CORE_NS=${CORE_NS:-"eda-system"}  # Kubernetes namespace
 
 # Define deployments
-DEPLOYMENT_SERVER1="cx-eda-telemetry--server1-sim"
-DEPLOYMENT_SERVER2="cx-eda-telemetry--server2-sim"
-DEPLOYMENT_SERVER3="cx-eda-telemetry--server3-sim"
-DEPLOYMENT_SERVER4="cx-eda-telemetry--server4-sim"
+DEPLOYMENT_SERVER1="cx-eda--server1-sim"
+DEPLOYMENT_SERVER2="cx-eda--server2-sim"
+DEPLOYMENT_SERVER3="cx-eda--server3-sim"
+DEPLOYMENT_SERVER4="cx-eda--server4-sim"
 
 # Get pod names (assuming standard K8s labels)
 SERVER1_POD=$(kubectl get -n ${CORE_NS} pods \

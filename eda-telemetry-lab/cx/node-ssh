@@ -9,7 +9,7 @@ NODE_NAME=${1}
 
 # user namespace to look up the TopoNode in
 # default is eda
-USER_NS=${2:-eda-telemetry}
+USER_NS=${2:-eda}
 
 # core namespace to cx pods in
 # default is eda

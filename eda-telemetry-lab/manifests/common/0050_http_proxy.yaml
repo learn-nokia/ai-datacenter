@@ -7,7 +7,7 @@ metadata:
   namespace: eda-system
 spec:
   authType: atDestination
-  rootUrl: http://grafana.eda-telemetry.svc.cluster.local:3000/
+  rootUrl: http://grafana.eda.svc.cluster.local:3000/
 ---
 # prometheus
 # watch out, "query" is part of the path here and MUST be there
@@ -19,7 +19,7 @@ metadata:
   namespace: eda-system
 spec:
   authType: atDestination
-  rootUrl: http://prometheus.eda-telemetry.svc.cluster.local:9090/
+  rootUrl: http://prometheus.eda.svc.cluster.local:9090/
 # ---
 # # Alloy
 # # ${EDA_URL}/core/httpproxy/v1/alloy
@@ -30,7 +30,7 @@ spec:
 #   namespace: eda-system
 # spec:
 #   authType: atDestination
-#   rootUrl: http://alloy.eda-telemetry.svc.cluster.local:12345/
+#   rootUrl: http://alloy.eda.svc.cluster.local:12345/
 # ---
 # # Loki
 # # ${EDA_URL}/core/httpproxy/v1/loki
@@ -41,7 +41,7 @@ spec:
 #   namespace: eda-system
 # spec:
 #   authType: atDestination
-#   rootUrl: http://loki.eda-telemetry.svc.cluster.local:3100/
+#   rootUrl: http://loki.eda.svc.cluster.local:3100/
 # ---
 # # Kafka
 # # ${EDA_URL}/core/httpproxy/v1/kafka
@@ -52,4 +52,4 @@ spec:
 #   namespace: eda-system
 # spec:
 #   authType: atDestination
-#   rootUrl: http://kafka.eda-telemetry.svc.cluster.local:9092/
+#   rootUrl: http://kafka.eda.svc.cluster.local:9092/
