@@ -1,8 +1,8 @@
 apiVersion: topologies.eda.nokia.com/v1
 kind: NetworkTopology
 metadata:
-  generateName: ai-lab-
-  namespace: eda
+  generateName: telemetry-lab-
+  namespace: eda-telemetry
 spec:
   operation: ReplaceAll
   nodeTemplates:
@@ -18,12 +18,7 @@ spec:
       labels:
         eda.nokia.com/security-profile: managed
         eda.nokia.com/role: spine
-    - name: rail
-      nodeProfile: srlinux-ghcr-25.10.1
-      platform: 7220 IXR-H5-32D
-      labels:
-        eda.nokia.com/security-profile: managed
-        eda.nokia.com/role: rail
+
   nodes:
     - name: leaf1
       template: leaf
@@ -37,10 +32,6 @@ spec:
       template: spine
     - name: spine2
       template: spine
-    - name: rail1
-      template: rail
-    - name: rail2
-      template: rail
 
   linkTemplates:
     - name: isl
@@ -53,11 +44,6 @@ spec:
       labels:
         eda.nokia.com/role: edge
         eda.nokia.com/macvrf1001: "true" # all access ports are part of the macvrf1001
-    - name: gpu-edge
-      type: Edge
-      encapType: Dot1q
-      labels:
-        eda.nokia.com/role: gpu-edge
 
   links:
     - name: leaf1-spine1
@@ -143,9 +129,16 @@ spec:
         - local:
             node: leaf1
             interface: ethernet-1-1
+          sim:
+            simNode: server1
+            simNodeInterface: eth1
         - local:
             node: leaf2
             interface: ethernet-1-1
+          sim:
+            simNode: server1
+            simNodeInterface: eth2
+
     - name: l1-l2-e1-2-lag-2
       template: edge
       labels:
@@ -154,9 +147,16 @@ spec:
         - local:
             node: leaf1
             interface: ethernet-1-2
+          sim:
+            simNode: server2
+            simNodeInterface: eth1
         - local:
             node: leaf2
             interface: ethernet-1-2
+          sim:
+            simNode: server2
+            simNodeInterface: eth2
+
     - name: l3-l4-e1-1-lag-1
       template: edge
       labels:
@@ -165,10 +165,16 @@ spec:
         - local:
             node: leaf3
             interface: ethernet-1-1
+          sim:
+            simNode: server3
+            simNodeInterface: eth1
         - local:
             node: leaf4
             interface: ethernet-1-1
-    
+          sim:
+            simNode: server3
+            simNodeInterface: eth2
+
     - name: l3-l4-e1-2-lag-2
       template: edge
       labels:
@@ -177,62 +183,27 @@ spec:
         - local:
             node: leaf3
             interface: ethernet-1-2
+          sim:
+            simNode: server4
+            simNodeInterface: eth1
         - local:
             node: leaf4
             interface: ethernet-1-2
+          sim:
+            simNode: server4
+            simNodeInterface: eth2
 
-################
-# backend links 
-################
-
-    - name: rail1-svr-1-gpu1
-      template: gpu-edge
-      endpoints:
-        - local:
-            node: rail1
-            interface: ethernet-1-1
-    - name: rail1-svr-1-gpu2
-      template: gpu-edge
-      endpoints:
-        - local:
-            node: rail2
-            interface: ethernet-1-1
-
-    - name: rail1-svr-2-gpu1
-      template: gpu-edge
-      endpoints:
-        - local:
-            node: rail1
-            interface: ethernet-1-2
-    - name: rail1-svr-2-gpu2
-      template: gpu-edge
-      endpoints:
-        - local:
-            node: rail2
-            interface: ethernet-1-2
-  
-    - name: rail1-svr-3-gpu1
-      template: gpu-edge
-      endpoints:
-        - local:
-            node: rail1
-            interface: ethernet-1-3
-    - name: rail1-svr-3-gpu2
-      template: gpu-edge
-      endpoints:
-        - local:
-            node: rail2
-            interface: ethernet-1-3
-
-    - name: rail1-svr-4-gpu1
-      template: gpu-edge
-      endpoints:
-        - local:
-            node: rail1
-            interface: ethernet-1-4
-    - name: rail1-svr-4-gpu2
-      template: gpu-edge
-      endpoints:
-        - local:
-            node: rail2
-            interface: ethernet-1-4
+  simulation:
+    simNodeTemplates:
+      - name: multitool
+        type: Linux
+        image: ghcr.io/srl-labs/network-multitool:v0.5.0
+    simNodes:
+      - name: server1
+        template: multitool
+      - name: server2
+        template: multitool
+      - name: server3
+        template: multitool
+      - name: server4
+        template: multitool

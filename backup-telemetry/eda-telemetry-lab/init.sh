@@ -1,0 +1,253 @@
+#!/bin/bash
+
+function check-required-binaries {
+    local missing_binaries=()
+
+    if ! command -v kubectl &> /dev/null; then
+        missing_binaries+=("kubectl")
+    fi
+
+    if ! command -v helm &> /dev/null; then
+        missing_binaries+=("helm")
+    fi
+
+    if [ ${#missing_binaries[@]} -gt 0 ]; then
+        echo "Error: Required binaries not found: ${missing_binaries[*]}"
+        echo "Please install the missing binaries before running this script."
+        echo "  https://github.com/eda-labs/eda-telemetry-lab?tab=readme-ov-file#requirements"
+        exit 1
+    fi
+}
+
+function install-uv {
+    if ! command -v uv &> /dev/null; then
+        echo "Installing uv"
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+    fi
+}
+
+indent_out() { sed 's/^/    /'; }
+
+check-required-binaries
+
+GREEN="\033[0;32m"
+RED="\033[0;31m"
+RESET="\033[0m"
+
+# Lab namespace: changed from eda-telemetry to eda
+ST_STACK_NS=${ST_STACK_NS:-eda}
+
+# EDA platform/system namespace - do not change
+EDA_CORE_NS=${EDA_CORE_NS:-eda-system}
+
+EDA_URL=${EDA_URL:-""}
+
+# Default EDA user namespace
+DEFAULT_USER_NS=${DEFAULT_USER_NS:-eda}
+
+CX_DEP=$(kubectl get -A deployment -l eda.nokia.com/app=cx 2>/dev/null | grep eda-cx || true)
+
+TOOLBOX_POD=$(kubectl -n ${EDA_CORE_NS} get pods -l eda.nokia.com/app=eda-toolbox -o jsonpath="{.items[0].metadata.name}")
+
+if [[ -z "$TOOLBOX_POD" ]]; then
+    echo -e "${RED}Error: Toolbox pod not found.${RESET}"
+    exit 1
+fi
+
+edactl() {
+    kubectl -n ${EDA_CORE_NS} exec ${TOOLBOX_POD} -- edactl "$@"
+}
+
+echo -e "${GREEN}--> Using ${ST_STACK_NS} namespace...${RESET}"
+
+# Skip bootstrap when source and destination namespace are both eda
+if [[ "${ST_STACK_NS}" != "${DEFAULT_USER_NS}" ]]; then
+    echo -e "${GREEN}--> Creating ${ST_STACK_NS} namespace from ${DEFAULT_USER_NS}...${RESET}"
+    edactl namespace bootstrap create --from-namespace ${DEFAULT_USER_NS} ${ST_STACK_NS} | indent_out
+
+    if [ $? -eq 0 ]; then
+        echo "Namespace ${ST_STACK_NS} bootstrap completed successfully." | indent_out
+    else
+        echo "--> Warning: Namespace ${ST_STACK_NS} bootstrap failed. Only EDA 25.12.1 and newer are supported."
+    fi
+else
+    echo "ST_STACK_NS and DEFAULT_USER_NS are both '${ST_STACK_NS}', skipping namespace bootstrap." | indent_out
+fi
+
+if [[ -n "$CX_DEP" ]]; then
+    echo -e "${GREEN}--> EDA CX variant detected.${RESET}"
+    IS_CX=true
+    NODE_PREFIX=${ST_STACK_NS}
+
+    echo -e "${GREEN}--> Deploying topology in EDA Digital Twin (CX)${RESET}"
+    TOPO_OUTPUT=$(kubectl -n ${ST_STACK_NS} create -f ./cx/topology/lab-topo.yaml)
+    echo "$TOPO_OUTPUT" | indent_out
+
+    TOPO_NAME=$(echo "$TOPO_OUTPUT" | awk '{print $1}')
+
+    echo -e "${GREEN}--> Waiting for topology to be ready...${RESET}"
+    if ! kubectl -n ${ST_STACK_NS} wait --for=jsonpath='{.status.result}'=Success "$TOPO_NAME" --timeout=300s 2>&1 | indent_out; then
+        TOPO_RESULT=$(kubectl -n ${ST_STACK_NS} get "$TOPO_NAME" -o jsonpath='{.status.result}' 2>/dev/null)
+        if [[ "$TOPO_RESULT" == "Failed" ]]; then
+            echo -e "${RED}Error: Topology deployment failed.${RESET}"
+            TOPO_MESSAGE=$(kubectl -n ${ST_STACK_NS} get "$TOPO_NAME" -o jsonpath='{.status.message}' 2>/dev/null)
+            echo -e "${RED}Status message: $TOPO_MESSAGE${RESET}"
+        else
+            echo -e "${RED}Error: Timeout waiting for topology to complete.${RESET}"
+        fi
+        exit 1
+    fi
+
+    echo -e "${GREEN}--> Waiting for nodes to sync...${RESET}"
+    kubectl -n ${ST_STACK_NS} wait --for=jsonpath='{.status.node-state}'=Synced toponode --all --timeout=300s | indent_out
+
+    echo -e "${GREEN}--> Configuring servers in CX topology...${RESET}"
+    bash ./cx/topology/configure-servers.sh | indent_out
+else
+    echo -e "${GREEN}Containerlab variant detected (no CX pods found).${RESET}"
+    IS_CX=false
+    NODE_PREFIX="clab-eda-st"
+
+    install-uv
+    uv tool install git+https://github.com/eda-labs/clab-connector.git
+    uv tool upgrade clab-connector
+
+    sed -e "s/__leaf1_addr__/10.58.2.11/g" \
+        -e "s/__leaf2_addr__/10.58.2.12/g" \
+        -e "s/__leaf3_addr__/10.58.2.13/g" \
+        -e "s/__leaf4_addr__/10.58.2.14/g" \
+        -e "s/__spine1_addr__/10.58.2.21/g" \
+        -e "s/__spine2_addr__/10.58.2.22/g" \
+        ./configs/servers/webui/index.tmpl.html \
+        > ./configs/servers/webui/index.html
+fi
+
+DASHBOARD_FILE="charts/telemetry-stack/files/grafana/dashboards/st.json"
+if [[ -f "$DASHBOARD_FILE" ]]; then
+    echo -e "${GREEN}--> Updating Grafana dashboard with node prefix: $NODE_PREFIX${RESET}"
+    sed -i.bak "s/clab-eda-st/__TEMP_MARKER__/g" "$DASHBOARD_FILE"
+    sed -i "s/eda-st/$NODE_PREFIX/g" "$DASHBOARD_FILE"
+    sed -i "s/__TEMP_MARKER__/$NODE_PREFIX/g" "$DASHBOARD_FILE"
+fi
+
+echo -e "${GREEN}--> Installing telemetry-stack helm chart...${RESET}"
+
+proxy_var="${https_proxy:-$HTTPS_PROXY}"
+if [[ -n "$proxy_var" ]]; then
+    echo "Using proxy for grafana deployment: $proxy_var"
+    noproxy="localhost\,127.0.0.1\,.local\,.internal\,.svc"
+
+    helm upgrade --install telemetry-stack ./charts/telemetry-stack \
+        --set https_proxy="$proxy_var" \
+        --set no_proxy="$noproxy" \
+        --set eda_url="${EDA_URL}" \
+        --create-namespace -n ${ST_STACK_NS} | indent_out
+else
+    helm upgrade --install telemetry-stack ./charts/telemetry-stack \
+        --set eda_url="${EDA_URL}" \
+        --create-namespace -n ${ST_STACK_NS} | indent_out
+fi
+
+echo -e "${GREEN}--> Waiting for alloy service be ready...${RESET}"
+echo "Note: First-time deployment may take several minutes while downloading container images." | indent_out
+
+ALLOY_IP=""
+RETRY_COUNT=0
+MAX_RETRIES=60
+
+echo "Checking alloy pod status..." | indent_out
+kubectl wait --for=condition=ready pod -l app=alloy -n ${ST_STACK_NS} --timeout=600s | indent_out
+
+if [[ "$IS_CX" != "true" ]]; then
+    while [ -z "$ALLOY_IP" ] && [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+        ALLOY_IP=$(kubectl get svc alloy -n ${ST_STACK_NS} -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
+        if [ -z "$ALLOY_IP" ]; then
+            echo "Waiting for external IP... (attempt $((RETRY_COUNT+1))/$MAX_RETRIES)"
+            sleep 10
+            RETRY_COUNT=$((RETRY_COUNT+1))
+        fi
+    done
+
+    if [ -z "$ALLOY_IP" ]; then
+        echo "Error: Failed to get alloy external IP after $MAX_RETRIES attempts"
+        exit 1
+    fi
+
+    echo "Got alloy IP: $ALLOY_IP"
+
+    SYSLOG_CONFIG_FILE="manifests/common/0026_syslog.yaml"
+
+    if [[ ! -f "$SYSLOG_CONFIG_FILE" ]]; then
+        echo "Error: $SYSLOG_CONFIG_FILE not found."
+        exit 1
+    fi
+
+    sed -i.bak -E "s/(\"host\": \")[^\"]+(\",)/\1${ALLOY_IP}\2/" "$SYSLOG_CONFIG_FILE"
+    echo "--> Updated syslog host to '$ALLOY_IP' in $SYSLOG_CONFIG_FILE"
+
+    EDA_API=$(uv run ./scripts/get_eda_api.py)
+
+    if [[ -z "$EDA_API" ]]; then
+        echo "No input provided. Exiting."
+        exit 1
+    fi
+
+    echo "$EDA_API" > .eda_api_address
+fi
+
+echo -e "${GREEN}--> Installing Prometheus and Kafka exporter EDA apps...${RESET}"
+
+TB_LAB_DIR="/tmp/eda-telemetry-lab"
+
+kubectl -n ${EDA_CORE_NS} exec ${TOOLBOX_POD} -- bash -c "rm -rf ${TB_LAB_DIR} && mkdir -p ${TB_LAB_DIR}"
+kubectl -n ${EDA_CORE_NS} cp ./manifests ${TOOLBOX_POD}:${TB_LAB_DIR}/manifests
+
+APP_INSTALL_WF=$(kubectl create -f ./manifests/0000_apps.yaml)
+APP_INSTALL_WF_NAME=$(echo "$APP_INSTALL_WF" | awk '{print $1}')
+echo "Workflow $APP_INSTALL_WF_NAME created" | indent_out
+
+echo -e "${GREEN}--> Waiting for EDA apps installation to complete...${RESET}"
+kubectl -n ${EDA_CORE_NS} wait --for=jsonpath='{.status.result}'=Completed $APP_INSTALL_WF_NAME --timeout=300s | indent_out
+
+echo -e "${GREEN}--> Creating EDA resources...${RESET}"
+edactl apply --commit-message "installing eda telemetry lab common resources" -f ${TB_LAB_DIR}/manifests/common | indent_out
+
+if [[ "$IS_CX" != "true" ]]; then
+    edactl apply --commit-message "installing topolinks and interfaces" -f ${TB_LAB_DIR}/manifests/clab | indent_out
+fi
+
+kubectl create configmap control-panel-nginx-conf \
+    --from-file=nginx.conf=configs/servers/webui/nginx.conf \
+    -n ${ST_STACK_NS} --dry-run=client -o yaml | kubectl apply -f - | indent_out
+
+if [[ "$IS_CX" == "true" ]]; then
+    leaf1_addr=$(kubectl get -n ${ST_STACK_NS} targetnode leaf1 -o jsonpath='{.spec.address}')
+    leaf2_addr=$(kubectl get -n ${ST_STACK_NS} targetnode leaf2 -o jsonpath='{.spec.address}')
+    leaf3_addr=$(kubectl get -n ${ST_STACK_NS} targetnode leaf3 -o jsonpath='{.spec.address}')
+    leaf4_addr=$(kubectl get -n ${ST_STACK_NS} targetnode leaf4 -o jsonpath='{.spec.address}')
+    spine1_addr=$(kubectl get -n ${ST_STACK_NS} targetnode spine1 -o jsonpath='{.spec.address}')
+    spine2_addr=$(kubectl get -n ${ST_STACK_NS} targetnode spine2 -o jsonpath='{.spec.address}')
+
+    sed -e "s/__leaf1_addr__/$leaf1_addr/g" \
+        -e "s/__leaf2_addr__/$leaf2_addr/g" \
+        -e "s/__leaf3_addr__/$leaf3_addr/g" \
+        -e "s/__leaf4_addr__/$leaf4_addr/g" \
+        -e "s/__spine1_addr__/$spine1_addr/g" \
+        -e "s/__spine2_addr__/$spine2_addr/g" \
+        ./configs/servers/webui/index.tmpl.html \
+        > ./configs/servers/webui/index.html
+fi
+
+kubectl create configmap control-panel-index-html \
+    --from-file=index.html=./configs/servers/webui/index.html \
+    -n ${ST_STACK_NS} --dry-run=client -o yaml | kubectl apply -f - | indent_out
+
+kubectl apply -f ./manifests/cx/controlpanel.yaml | indent_out
+
+echo -e "${GREEN}--> Waiting for Grafana deployment to be available...${RESET}"
+kubectl -n ${ST_STACK_NS} wait --for=condition=available deployment/grafana --timeout=300s | indent_out
+
+echo ""
+echo -e "${GREEN}--> Access Grafana: ${EDA_URL}/core/httpproxy/v1/grafana/d/Telemetry_Playground/${RESET}"
+echo -e "${GREEN}--> Access Prometheus: ${EDA_URL}/core/httpproxy/v1/prometheus/query${RESET}"
+echo -e "${GREEN}--> Access Control Panel: ${EDA_URL}/core/httpproxy/v1/control-panel/${RESET}"

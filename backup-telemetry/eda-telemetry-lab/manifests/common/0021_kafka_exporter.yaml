@@ -1,0 +1,15 @@
+---
+apiVersion: kafka.eda.nokia.com/v1
+kind: Producer
+metadata:
+  name: alarms-and-deviations
+  namespace: eda-telemetry
+spec:
+  brokers: kafka.eda-telemetry.svc.cluster.local:9092
+  exports:
+    - path: .namespace.alarms.v1.alarm
+      topic: alarms
+      mode: onChange
+    - path: .namespace.resources.cr.core_eda_nokia_com.v1.deviation
+      topic: deviations
+      mode: onChange

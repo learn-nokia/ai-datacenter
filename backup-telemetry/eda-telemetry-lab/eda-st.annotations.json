@@ -1,0 +1,245 @@
+{
+  "freeTextAnnotations": [
+    {
+      "id": "freeText_1756392350653_blb6yh5do",
+      "text": "10.10.10.1/\n10.20.1.1",
+      "position": {
+        "x": 385,
+        "y": 525
+      },
+      "fontSize": 8,
+      "fontColor": "#ffffff",
+      "backgroundColor": "transparent",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "fontFamily": "monospace"
+    },
+    {
+      "id": "freeText_1756392397027_e0uaxq37o",
+      "text": "10.10.10.2/\n10.20.2.2",
+      "position": {
+        "x": 497,
+        "y": 525
+      },
+      "fontSize": 8,
+      "fontColor": "#ffffff",
+      "backgroundColor": "transparent",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "fontFamily": "monospace"
+    },
+    {
+      "id": "freeText_1756392511082_pa57hhsqi",
+      "text": "10.10.10.3/\n10.20.1.3",
+      "position": {
+        "x": 623,
+        "y": 525
+      },
+      "fontSize": 8,
+      "fontColor": "#ffffff",
+      "backgroundColor": "transparent",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "fontFamily": "monospace"
+    },
+    {
+      "id": "freeText_1756392551888_ibjebwtd2",
+      "text": "10.10.10.4/\n10.20.2.4",
+      "position": {
+        "x": 721,
+        "y": 525
+      },
+      "fontSize": 8,
+      "fontColor": "#ffffff",
+      "backgroundColor": "transparent",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "fontFamily": "monospace"
+    }
+  ],
+  "groupStyleAnnotations": [
+    {
+      "id": "Server:1",
+      "backgroundColor": "#00f5b8",
+      "backgroundOpacity": 20,
+      "borderColor": "#dddddd",
+      "borderWidth": 0,
+      "borderStyle": "solid",
+      "borderRadius": 10,
+      "color": "#ebecf0"
+    },
+    {
+      "id": "Spines:1",
+      "backgroundColor": "#004bfa",
+      "backgroundOpacity": 20,
+      "borderColor": "#dddddd",
+      "borderWidth": 0,
+      "borderStyle": "solid",
+      "borderRadius": 10,
+      "color": "#ebecf0"
+    },
+    {
+      "id": "Leaves:1",
+      "backgroundColor": "#7d04f6",
+      "backgroundOpacity": 20,
+      "borderColor": "#dddddd",
+      "borderWidth": 0,
+      "borderStyle": "solid",
+      "borderRadius": 10,
+      "color": "#ebecf0"
+    }
+  ],
+  "cloudNodeAnnotations": [],
+  "nodeAnnotations": [
+    {
+      "id": "leaf1",
+      "position": {
+        "x": 385,
+        "y": 408
+      },
+      "icon": "router",
+      "geoCoordinates": {
+        "lat": 49.32066181902717,
+        "lng": 9.635767471676967
+      },
+      "groupLabelPos": "bottom-center",
+      "group": "Leaves",
+      "level": "1"
+    },
+    {
+      "id": "leaf2",
+      "position": {
+        "x": 511,
+        "y": 408
+      },
+      "icon": "router",
+      "geoCoordinates": {
+        "lat": 48.757799289200584,
+        "lng": 9.819256778233974
+      },
+      "groupLabelPos": "bottom-center",
+      "group": "Leaves",
+      "level": "1"
+    },
+    {
+      "id": "leaf3",
+      "position": {
+        "x": 623,
+        "y": 408
+      },
+      "icon": "router",
+      "geoCoordinates": {
+        "lat": 49.39728471207097,
+        "lng": 9.614770125183934
+      },
+      "groupLabelPos": "bottom-center",
+      "group": "Leaves",
+      "level": "1"
+    },
+    {
+      "id": "leaf4",
+      "position": {
+        "x": 721,
+        "y": 408
+      },
+      "icon": "router",
+      "geoCoordinates": {
+        "lat": 49.49342133586973,
+        "lng": 9.500523285351887
+      },
+      "groupLabelPos": "bottom-center",
+      "group": "Leaves",
+      "level": "1"
+    },
+    {
+      "id": "spine1",
+      "position": {
+        "x": 511,
+        "y": 310
+      },
+      "icon": "router",
+      "geoCoordinates": {
+        "lat": 49.307547185969895,
+        "lng": 9.243567416673272
+      },
+      "groupLabelPos": "top-center",
+      "group": "Spines",
+      "level": "1"
+    },
+    {
+      "id": "spine2",
+      "position": {
+        "x": 623,
+        "y": 310
+      },
+      "icon": "router",
+      "geoCoordinates": {
+        "lat": 49.551922193842536,
+        "lng": 9.300420635670786
+      },
+      "groupLabelPos": "top-center",
+      "group": "Spines",
+      "level": "1"
+    },
+    {
+      "id": "server1",
+      "position": {
+        "x": 385,
+        "y": 492
+      },
+      "icon": "router",
+      "geoCoordinates": {
+        "lat": 48.717586388838065,
+        "lng": 9.2809222842033
+      },
+      "group": "Server",
+      "level": "1"
+    },
+    {
+      "id": "server2",
+      "position": {
+        "x": 511,
+        "y": 492
+      },
+      "icon": "router",
+      "geoCoordinates": {
+        "lat": 49.04744010457352,
+        "lng": 9.218132412151073
+      },
+      "group": "Server",
+      "level": "1"
+    },
+    {
+      "id": "server3",
+      "position": {
+        "x": 623,
+        "y": 492
+      },
+      "icon": "router",
+      "geoCoordinates": {
+        "lat": 49.06317931528749,
+        "lng": 9.611781122859512
+      },
+      "group": "Server",
+      "level": "1"
+    },
+    {
+      "id": "server4",
+      "position": {
+        "x": 721,
+        "y": 492
+      },
+      "icon": "router",
+      "geoCoordinates": {
+        "lat": 49.562363841270994,
+        "lng": 9.273523250557975
+      },
+      "group": "Server",
+      "level": "1"
+    }
+  ]
+}

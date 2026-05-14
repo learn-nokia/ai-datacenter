@@ -1,0 +1,88 @@
+{
+  "freeTextAnnotations": [],
+  "freeShapeAnnotations": [],
+  "trafficRateAnnotations": [],
+  "groupStyleAnnotations": [],
+  "networkNodeAnnotations": [],
+  "nodeAnnotations": [
+    {
+      "id": "leaf1",
+      "interfacePattern": "e1-{n}",
+      "position": {
+        "x": 320,
+        "y": 420
+      }
+    },
+    {
+      "id": "leaf2",
+      "interfacePattern": "e1-{n}",
+      "position": {
+        "x": 640,
+        "y": 220
+      }
+    },
+    {
+      "id": "leaf3",
+      "interfacePattern": "e1-{n}",
+      "position": {
+        "x": 420,
+        "y": 460
+      }
+    },
+    {
+      "id": "leaf4",
+      "interfacePattern": "e1-{n}",
+      "position": {
+        "x": 360,
+        "y": 340
+      }
+    },
+    {
+      "id": "spine1",
+      "interfacePattern": "e1-{n}",
+      "position": {
+        "x": 440,
+        "y": 260
+      }
+    },
+    {
+      "id": "spine2",
+      "interfacePattern": "e1-{n}",
+      "position": {
+        "x": 540,
+        "y": 400
+      }
+    },
+    {
+      "id": "server1",
+      "position": {
+        "x": 340,
+        "y": 240
+      }
+    },
+    {
+      "id": "server2",
+      "position": {
+        "x": 460,
+        "y": 360
+      }
+    },
+    {
+      "id": "server3",
+      "position": {
+        "x": 520,
+        "y": 500
+      }
+    },
+    {
+      "id": "server4",
+      "position": {
+        "x": 540,
+        "y": 300
+      }
+    }
+  ],
+  "edgeAnnotations": [],
+  "aliasEndpointAnnotations": [],
+  "viewerSettings": {}
+}

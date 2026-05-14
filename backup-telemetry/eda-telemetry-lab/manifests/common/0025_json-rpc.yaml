@@ -1,0 +1,27 @@
+apiVersion: config.eda.nokia.com/v1
+kind: Configlet
+metadata:
+  name: jsonrpc
+  namespace: eda-telemetry
+spec:
+  configs:
+    - config: |-
+        {
+            "admin-state": "enable",
+            "network-instance": [
+              {
+                "name": "mgmt",
+                "http": {
+                  "admin-state": "enable"
+                }
+              }
+            ]
+        }
+      operation: Create
+      path: .system.json-rpc-server
+  endpointSelectors:
+    - eda.nokia.com/role = leaf
+    - eda.nokia.com/role = spine
+  operatingSystem: srl
+  priority: 0
+

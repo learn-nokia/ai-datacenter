@@ -1,0 +1,99 @@
+---
+apiVersion: core.eda.nokia.com/v1
+kind: TopoLink
+metadata:
+  labels:
+    eda.nokia.com/macvrf201: "true"
+    eda.nokia.com/macvrf1001: "true"
+    eda.nokia.com/role: edge
+  name: lag1-l1-l2-eth-1-1
+  namespace: eda-telemetry
+spec:
+  links:
+    - local:
+        interface: ethernet-1-1
+        interfaceResource: lag1-l1-l2-eth-1-1
+        node: leaf1
+      speed: 10G
+      type: edge
+    - local:
+        interface: ethernet-1-1
+        interfaceResource: lag1-l1-l2-eth-1-1
+        node: leaf2
+      speed: 10G
+      type: edge
+
+---
+apiVersion: core.eda.nokia.com/v1
+kind: TopoLink
+metadata:
+  labels:
+    eda.nokia.com/macvrf202: "true"
+    eda.nokia.com/macvrf1001: "true"
+    eda.nokia.com/role: edge
+  name: lag2-l1-l2-eth-1-2
+  namespace: eda-telemetry
+spec:
+  links:
+    - local:
+        interface: ethernet-1-2
+        interfaceResource: lag2-l1-l2-eth-1-2
+        node: leaf1
+      speed: 10G
+      type: edge
+    - local:
+        interface: ethernet-1-2
+        interfaceResource: lag2-l1-l2-eth-1-2
+        node: leaf2
+      speed: 10G
+      type: edge
+
+---
+apiVersion: core.eda.nokia.com/v1
+kind: TopoLink
+metadata:
+  labels:
+    eda.nokia.com/macvrf201: "true"
+    eda.nokia.com/macvrf1001: "true"
+    eda.nokia.com/role: edge
+  name: lag3-l3-l4-eth-1-1
+  namespace: eda-telemetry
+spec:
+  links:
+    - local:
+        interface: ethernet-1-1
+        interfaceResource: lag3-l3-l4-eth-1-1
+        node: leaf3
+      speed: 10G
+      type: edge
+    - local:
+        interface: ethernet-1-1
+        interfaceResource: lag3-l3-l4-eth-1-1
+        node: leaf4
+      speed: 10G
+      type: edge
+
+---
+apiVersion: core.eda.nokia.com/v1
+kind: TopoLink
+metadata:
+  labels:
+    eda.nokia.com/macvrf202: "true"
+    eda.nokia.com/macvrf1001: "true"
+    eda.nokia.com/role: edge
+  name: lag4-l3-l4-eth-1-2
+  namespace: eda-telemetry
+spec:
+  links:
+    - local:
+        interface: ethernet-1-2
+        interfaceResource: lag4-l3-l4-eth-1-2
+        node: leaf3
+      speed: 10G
+      type: edge
+    - local:
+        interface: ethernet-1-2
+        interfaceResource: lag4-l3-l4-eth-1-2
+        node: leaf4
+      speed: 10G
+      type: edge
