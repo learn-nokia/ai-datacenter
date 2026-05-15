@@ -53,6 +53,10 @@ spec:
       labels:
         eda.nokia.com/role: edge
         eda.nokia.com/macvrf1001: "true" # all access ports are part of the macvrf1001
+    - name: gpu-edge
+      type: Edge
+      labels:
+        eda.nokia.com/role: gpu-edge
 
   links:
     - name: leaf1-spine1

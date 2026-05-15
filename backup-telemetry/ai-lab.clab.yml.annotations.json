@@ -9,76 +9,92 @@
       "id": "leaf1",
       "interfacePattern": "e1-{n}",
       "position": {
-        "x": 260,
-        "y": 480
+        "x": 580,
+        "y": 260
       }
     },
     {
       "id": "leaf2",
       "interfacePattern": "e1-{n}",
       "position": {
-        "x": 640,
-        "y": 220
+        "x": 500,
+        "y": 320
       }
     },
     {
       "id": "leaf3",
       "interfacePattern": "e1-{n}",
       "position": {
-        "x": 420,
-        "y": 500
+        "x": 400,
+        "y": 320
       }
     },
     {
       "id": "leaf4",
       "interfacePattern": "e1-{n}",
       "position": {
-        "x": 240,
-        "y": 360
+        "x": 300,
+        "y": 280
       }
     },
     {
       "id": "spine1",
       "interfacePattern": "e1-{n}",
       "position": {
-        "x": 480,
-        "y": 280
+        "x": 500,
+        "y": 160
       }
     },
     {
       "id": "spine2",
       "interfacePattern": "e1-{n}",
       "position": {
-        "x": 600,
-        "y": 400
+        "x": 400,
+        "y": 160
+      }
+    },
+    {
+      "id": "rail1",
+      "interfacePattern": "e1-{n}",
+      "position": {
+        "x": 460,
+        "y": 420
+      }
+    },
+    {
+      "id": "rail2",
+      "interfacePattern": "e1-{n}",
+      "position": {
+        "x": 460,
+        "y": 520
       }
     },
     {
       "id": "server1",
       "position": {
-        "x": 240,
-        "y": 220
+        "x": 640,
+        "y": 400
       }
     },
     {
       "id": "server2",
       "position": {
-        "x": 400,
-        "y": 360
+        "x": 580,
+        "y": 480
       }
     },
     {
       "id": "server3",
       "position": {
-        "x": 600,
-        "y": 500
+        "x": 280,
+        "y": 400
       }
     },
     {
       "id": "server4",
       "position": {
-        "x": 640,
-        "y": 320
+        "x": 320,
+        "y": 480
       }
     }
   ],

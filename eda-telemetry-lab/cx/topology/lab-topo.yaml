@@ -55,7 +55,7 @@ spec:
         eda.nokia.com/macvrf1001: "true" # all access ports are part of the macvrf1001
     - name: gpu-edge
       type: Edge
-      encapType: Dot1q
+      encapType: "Null"
       labels:
         eda.nokia.com/role: gpu-edge
 
@@ -187,12 +187,16 @@ spec:
 
     - name: rail1-svr-1-gpu1
       template: gpu-edge
+      labels:
+        eda.nokia.com/gpu_group: nvidia
       endpoints:
         - local:
             node: rail1
             interface: ethernet-1-1
     - name: rail1-svr-1-gpu2
       template: gpu-edge
+      labels:
+        eda.nokia.com/gpu_group: nvidia
       endpoints:
         - local:
             node: rail2
@@ -200,12 +204,16 @@ spec:
 
     - name: rail1-svr-2-gpu1
       template: gpu-edge
+      labels:
+        eda.nokia.com/gpu_group: nvidia
       endpoints:
         - local:
             node: rail1
             interface: ethernet-1-2
     - name: rail1-svr-2-gpu2
       template: gpu-edge
+      labels:
+        eda.nokia.com/gpu_group: nvidia
       endpoints:
         - local:
             node: rail2
@@ -213,12 +221,16 @@ spec:
   
     - name: rail1-svr-3-gpu1
       template: gpu-edge
+      labels:
+        eda.nokia.com/gpu_group: amd
       endpoints:
         - local:
             node: rail1
             interface: ethernet-1-3
     - name: rail1-svr-3-gpu2
       template: gpu-edge
+      labels:
+        eda.nokia.com/gpu_group: amd
       endpoints:
         - local:
             node: rail2
@@ -226,12 +238,16 @@ spec:
 
     - name: rail1-svr-4-gpu1
       template: gpu-edge
+      labels:
+        eda.nokia.com/gpu_group: amd
       endpoints:
         - local:
             node: rail1
             interface: ethernet-1-4
     - name: rail1-svr-4-gpu2
       template: gpu-edge
+      labels:
+        eda.nokia.com/gpu_group: amd
       endpoints:
         - local:
             node: rail2

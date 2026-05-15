@@ -1,0 +1,32 @@
+apiVersion: aifabrics.eda.nokia.com/v1
+kind: Backend
+metadata:
+  name: ai-backend
+  namespace: eda
+spec:
+  addressAllocation:
+    edaManagedIPv6:
+      leafIndexPoolScope: Global
+      prefixLength: '64'
+    type: EDAManagedIPv6
+  gpuIsolationGroups:
+    - interfaceSelectors:
+        - eda.nokia.com/role = gpu-edge
+      name: nvidia
+  ipMTU: 4200
+  rocev2QoS:
+    ecnMaxDropProbabilityPercent: 100
+    ecnSlopeMaxThresholdPercent: 80
+    ecnSlopeMinThresholdPercent: 5
+    pfcDeadlockDetectionTimerMs: 750
+    pfcDeadlockRecoveryTimerMs: 750
+    queueMaximumBurstSizeBytes: 1023999
+  stripes:
+    - asnPool: asn-pool
+      gpuVLAN: 101
+      name: stripe1
+      nodeSelectors:
+        - eda.nokia.com/role = rail
+      stripeID: 1
+      systemPoolIPv4: systemipv4-pool
+
