@@ -1,7 +1,855 @@
 {
-  "freeTextAnnotations": [],
+  "freeTextAnnotations": [
+    {
+      "id": "freeText_1778912687606",
+      "text": "Frontend DC",
+      "position": {
+        "x": 561.5441176470588,
+        "y": -38.45588235294118
+      },
+      "fontSize": 14,
+      "fontColor": "#d4d4d4",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "textAlign": "left",
+      "fontFamily": "Arial"
+    },
+    {
+      "id": "freeText_1778912722115",
+      "text": "AI Backend",
+      "position": {
+        "x": 569.8507791256109,
+        "y": 521.6208820416723
+      },
+      "fontSize": 14,
+      "fontColor": "#d4d4d4",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "textAlign": "left",
+      "fontFamily": "Arial"
+    }
+  ],
   "freeShapeAnnotations": [],
-  "trafficRateAnnotations": [],
+  "trafficRateAnnotations": [
+    {
+      "id": "traffic-rate-leaf1-ethernet-1-49",
+      "position": {
+        "x": 404,
+        "y": 95
+      },
+      "label": "autocreated",
+      "nodeId": "leaf1",
+      "interfaceName": "ethernet-1/49",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-spine1-ethernet-1-1",
+      "position": {
+        "x": 446,
+        "y": 35
+      },
+      "label": "autocreated",
+      "nodeId": "spine1",
+      "interfaceName": "ethernet-1/1",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-leaf1-ethernet-1-50",
+      "position": {
+        "x": 460,
+        "y": 95
+      },
+      "label": "autocreated",
+      "nodeId": "leaf1",
+      "interfaceName": "ethernet-1/50",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-spine2-ethernet-1-1",
+      "position": {
+        "x": 550,
+        "y": 35
+      },
+      "label": "autocreated",
+      "nodeId": "spine2",
+      "interfaceName": "ethernet-1/1",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-leaf2-ethernet-1-49",
+      "position": {
+        "x": 495,
+        "y": 95
+      },
+      "label": "autocreated",
+      "nodeId": "leaf2",
+      "interfaceName": "ethernet-1/49",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-spine1-ethernet-1-2",
+      "position": {
+        "x": 495,
+        "y": 35
+      },
+      "label": "autocreated",
+      "nodeId": "spine1",
+      "interfaceName": "ethernet-1/2",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-leaf2-ethernet-1-50",
+      "position": {
+        "x": 551,
+        "y": 95
+      },
+      "label": "autocreated",
+      "nodeId": "leaf2",
+      "interfaceName": "ethernet-1/50",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-spine2-ethernet-1-2",
+      "position": {
+        "x": 599,
+        "y": 35
+      },
+      "label": "autocreated",
+      "nodeId": "spine2",
+      "interfaceName": "ethernet-1/2",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-leaf3-ethernet-1-49",
+      "position": {
+        "x": 599,
+        "y": 95
+      },
+      "label": "autocreated",
+      "nodeId": "leaf3",
+      "interfaceName": "ethernet-1/49",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-spine1-ethernet-1-3",
+      "position": {
+        "x": 551,
+        "y": 35
+      },
+      "label": "autocreated",
+      "nodeId": "spine1",
+      "interfaceName": "ethernet-1/3",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-leaf3-ethernet-1-50",
+      "position": {
+        "x": 655,
+        "y": 95
+      },
+      "label": "autocreated",
+      "nodeId": "leaf3",
+      "interfaceName": "ethernet-1/50",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-spine2-ethernet-1-3",
+      "position": {
+        "x": 655,
+        "y": 35
+      },
+      "label": "autocreated",
+      "nodeId": "spine2",
+      "interfaceName": "ethernet-1/3",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-leaf4-ethernet-1-49",
+      "position": {
+        "x": 703,
+        "y": 95
+      },
+      "label": "autocreated",
+      "nodeId": "leaf4",
+      "interfaceName": "ethernet-1/49",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-spine1-ethernet-1-4",
+      "position": {
+        "x": 607,
+        "y": 35
+      },
+      "label": "autocreated",
+      "nodeId": "spine1",
+      "interfaceName": "ethernet-1/4",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-leaf4-ethernet-1-50",
+      "position": {
+        "x": 759,
+        "y": 95
+      },
+      "label": "autocreated",
+      "nodeId": "leaf4",
+      "interfaceName": "ethernet-1/50",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-spine2-ethernet-1-4",
+      "position": {
+        "x": 711,
+        "y": 35
+      },
+      "label": "autocreated",
+      "nodeId": "spine2",
+      "interfaceName": "ethernet-1/4",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-leaf1-ethernet-1-1",
+      "position": {
+        "x": 355,
+        "y": 228
+      },
+      "label": "autocreated",
+      "nodeId": "leaf1",
+      "interfaceName": "ethernet-1/1",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-server1-eth1",
+      "position": {
+        "x": 355,
+        "y": 282
+      },
+      "label": "autocreated",
+      "nodeId": "server1",
+      "interfaceName": "eth1",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-leaf2-ethernet-1-1",
+      "position": {
+        "x": 446,
+        "y": 228
+      },
+      "label": "autocreated",
+      "nodeId": "leaf2",
+      "interfaceName": "ethernet-1/1",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-server1-eth2",
+      "position": {
+        "x": 404,
+        "y": 282
+      },
+      "label": "autocreated",
+      "nodeId": "server1",
+      "interfaceName": "eth2",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-leaf1-ethernet-1-2",
+      "position": {
+        "x": 404,
+        "y": 228
+      },
+      "label": "autocreated",
+      "nodeId": "leaf1",
+      "interfaceName": "ethernet-1/2",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-server2-eth1",
+      "position": {
+        "x": 446,
+        "y": 282
+      },
+      "label": "autocreated",
+      "nodeId": "server2",
+      "interfaceName": "eth1",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-leaf2-ethernet-1-2",
+      "position": {
+        "x": 495,
+        "y": 228
+      },
+      "label": "autocreated",
+      "nodeId": "leaf2",
+      "interfaceName": "ethernet-1/2",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-server2-eth2",
+      "position": {
+        "x": 495,
+        "y": 282
+      },
+      "label": "autocreated",
+      "nodeId": "server2",
+      "interfaceName": "eth2",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-leaf3-ethernet-1-1",
+      "position": {
+        "x": 655,
+        "y": 228
+      },
+      "label": "autocreated",
+      "nodeId": "leaf3",
+      "interfaceName": "ethernet-1/1",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-server3-eth1",
+      "position": {
+        "x": 655,
+        "y": 282
+      },
+      "label": "autocreated",
+      "nodeId": "server3",
+      "interfaceName": "eth1",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-leaf4-ethernet-1-1",
+      "position": {
+        "x": 759,
+        "y": 228
+      },
+      "label": "autocreated",
+      "nodeId": "leaf4",
+      "interfaceName": "ethernet-1/1",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-server3-eth2",
+      "position": {
+        "x": 711,
+        "y": 282
+      },
+      "label": "autocreated",
+      "nodeId": "server3",
+      "interfaceName": "eth2",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-leaf3-ethernet-1-2",
+      "position": {
+        "x": 711,
+        "y": 228
+      },
+      "label": "autocreated",
+      "nodeId": "leaf3",
+      "interfaceName": "ethernet-1/2",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-server4-eth1",
+      "position": {
+        "x": 759,
+        "y": 282
+      },
+      "label": "autocreated",
+      "nodeId": "server4",
+      "interfaceName": "eth1",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-leaf4-ethernet-1-2",
+      "position": {
+        "x": 815,
+        "y": 228
+      },
+      "label": "autocreated",
+      "nodeId": "leaf4",
+      "interfaceName": "ethernet-1/2",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-server4-eth2",
+      "position": {
+        "x": 815,
+        "y": 282
+      },
+      "label": "autocreated",
+      "nodeId": "server4",
+      "interfaceName": "eth2",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-rail1-ethernet-1-1",
+      "position": {
+        "x": 446,
+        "y": 462
+      },
+      "label": "autocreated",
+      "nodeId": "rail1",
+      "interfaceName": "ethernet-1/1",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-server1-eth11",
+      "position": {
+        "x": 404,
+        "y": 408
+      },
+      "label": "autocreated",
+      "nodeId": "server1",
+      "interfaceName": "eth11",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-rail2-ethernet-1-1",
+      "position": {
+        "x": 550,
+        "y": 462
+      },
+      "label": "autocreated",
+      "nodeId": "rail2",
+      "interfaceName": "ethernet-1/1",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-server1-eth12",
+      "position": {
+        "x": 460,
+        "y": 408
+      },
+      "label": "autocreated",
+      "nodeId": "server1",
+      "interfaceName": "eth12",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-rail1-ethernet-1-2",
+      "position": {
+        "x": 495,
+        "y": 462
+      },
+      "label": "autocreated",
+      "nodeId": "rail1",
+      "interfaceName": "ethernet-1/2",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-server2-eth11",
+      "position": {
+        "x": 495,
+        "y": 408
+      },
+      "label": "autocreated",
+      "nodeId": "server2",
+      "interfaceName": "eth11",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-rail2-ethernet-1-2",
+      "position": {
+        "x": 599,
+        "y": 462
+      },
+      "label": "autocreated",
+      "nodeId": "rail2",
+      "interfaceName": "ethernet-1/2",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-server2-eth12",
+      "position": {
+        "x": 551,
+        "y": 408
+      },
+      "label": "autocreated",
+      "nodeId": "server2",
+      "interfaceName": "eth12",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-rail1-ethernet-1-3",
+      "position": {
+        "x": 551,
+        "y": 462
+      },
+      "label": "autocreated",
+      "nodeId": "rail1",
+      "interfaceName": "ethernet-1/3",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-server3-eth11",
+      "position": {
+        "x": 599,
+        "y": 408
+      },
+      "label": "autocreated",
+      "nodeId": "server3",
+      "interfaceName": "eth11",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-rail2-ethernet-1-3",
+      "position": {
+        "x": 655,
+        "y": 462
+      },
+      "label": "autocreated",
+      "nodeId": "rail2",
+      "interfaceName": "ethernet-1/3",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-server3-eth12",
+      "position": {
+        "x": 655,
+        "y": 408
+      },
+      "label": "autocreated",
+      "nodeId": "server3",
+      "interfaceName": "eth12",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-rail1-ethernet-1-4",
+      "position": {
+        "x": 607,
+        "y": 462
+      },
+      "label": "autocreated",
+      "nodeId": "rail1",
+      "interfaceName": "ethernet-1/4",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-server4-eth11",
+      "position": {
+        "x": 703,
+        "y": 408
+      },
+      "label": "autocreated",
+      "nodeId": "server4",
+      "interfaceName": "eth11",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-rail2-ethernet-1-4",
+      "position": {
+        "x": 711,
+        "y": 462
+      },
+      "label": "autocreated",
+      "nodeId": "rail2",
+      "interfaceName": "ethernet-1/4",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    },
+    {
+      "id": "traffic-rate-server4-eth12",
+      "position": {
+        "x": 759,
+        "y": 408
+      },
+      "label": "autocreated",
+      "nodeId": "server4",
+      "interfaceName": "eth12",
+      "mode": "text",
+      "textMetric": "tx",
+      "backgroundOpacity": 20,
+      "borderWidth": 0,
+      "borderRadius": 4,
+      "width": 50,
+      "height": 30
+    }
+  ],
   "groupStyleAnnotations": [],
   "networkNodeAnnotations": [],
   "nodeAnnotations": [
@@ -9,96 +857,142 @@
       "id": "leaf1",
       "interfacePattern": "e1-{n}",
       "position": {
-        "x": 580,
-        "y": 260
-      }
+        "x": 360,
+        "y": 160
+      },
+      "labelPosition": "left",
+      "icon": "pe",
+      "labelBackgroundColor": "transparent"
     },
     {
       "id": "leaf2",
       "interfacePattern": "e1-{n}",
       "position": {
         "x": 500,
-        "y": 320
-      }
+        "y": 160
+      },
+      "labelPosition": "left",
+      "icon": "pe",
+      "labelBackgroundColor": "transparent"
     },
     {
       "id": "leaf3",
       "interfacePattern": "e1-{n}",
       "position": {
-        "x": 400,
-        "y": 320
-      }
+        "x": 660,
+        "y": 160
+      },
+      "labelPosition": "right",
+      "icon": "pe",
+      "labelBackgroundColor": "transparent"
     },
     {
       "id": "leaf4",
       "interfacePattern": "e1-{n}",
       "position": {
-        "x": 300,
-        "y": 280
-      }
+        "x": 820,
+        "y": 160
+      },
+      "labelPosition": "right",
+      "icon": "pe",
+      "labelBackgroundColor": "transparent"
     },
     {
       "id": "spine1",
       "interfacePattern": "e1-{n}",
       "position": {
         "x": 500,
-        "y": 160
-      }
+        "y": -40
+      },
+      "labelPosition": "top",
+      "icon": "pe",
+      "labelBackgroundColor": "transparent"
     },
     {
       "id": "spine2",
       "interfacePattern": "e1-{n}",
       "position": {
-        "x": 400,
-        "y": 160
-      }
+        "x": 660,
+        "y": -40
+      },
+      "labelPosition": "top",
+      "icon": "pe",
+      "labelBackgroundColor": "transparent"
     },
     {
       "id": "rail1",
       "interfacePattern": "e1-{n}",
       "position": {
-        "x": 460,
-        "y": 420
-      }
+        "x": 500,
+        "y": 520
+      },
+      "labelBackgroundColor": "transparent",
+      "icon": "pe"
     },
     {
       "id": "rail2",
       "interfacePattern": "e1-{n}",
       "position": {
-        "x": 460,
+        "x": 660,
         "y": 520
-      }
+      },
+      "labelBackgroundColor": "transparent",
+      "icon": "pe"
     },
     {
       "id": "server1",
       "position": {
-        "x": 640,
-        "y": 400
-      }
+        "x": 360,
+        "y": 340
+      },
+      "labelPosition": "left",
+      "icon": "server",
+      "labelBackgroundColor": "transparent"
     },
     {
       "id": "server2",
       "position": {
-        "x": 580,
-        "y": 480
-      }
+        "x": 500,
+        "y": 340
+      },
+      "labelPosition": "left",
+      "icon": "server",
+      "labelBackgroundColor": "transparent"
     },
     {
       "id": "server3",
       "position": {
-        "x": 280,
-        "y": 400
-      }
+        "x": 660,
+        "y": 340
+      },
+      "labelPosition": "right",
+      "icon": "server",
+      "labelBackgroundColor": "transparent"
     },
     {
       "id": "server4",
       "position": {
-        "x": 320,
-        "y": 480
-      }
+        "x": 820,
+        "y": 340
+      },
+      "labelPosition": "right",
+      "icon": "server",
+      "labelBackgroundColor": "transparent"
     }
   ],
   "edgeAnnotations": [],
   "aliasEndpointAnnotations": [],
-  "viewerSettings": {}
+  "viewerSettings": {
+    "style": "telemetry-style",
+    "linkLabelMode": "telemetry-style",
+    "lastNonTelemetryLinkLabelMode": "show-all",
+    "telemetryNodeSizePx": 55,
+    "telemetryInterfaceSizePercent": 100,
+    "showRateLabels": true,
+    "autoCreateTrafficRateAnnotations": true,
+    "gridLineWidth": 0.1,
+    "gridStyle": "dotted",
+    "gridColor": null,
+    "gridBgColor": null
+  }
 }

@@ -3,7 +3,7 @@ for s in server1 server2 server3 server4; do
   docker run -dit \
     --name "$s" \
     --privileged \
-    --network none \
+    --network host \
     -v /dev/infiniband:/dev/infiniband \
     ghcr.io/mfzhsn/network-multitool-roce:0.1 \
     sleep infinity
