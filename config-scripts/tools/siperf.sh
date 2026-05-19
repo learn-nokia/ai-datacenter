@@ -1,0 +1,156 @@
+#!/bin/bash
+set -euo pipefail
+
+SRC="${1:-}"
+DST="${2:-}"
+
+RATE="100M"
+TIME="30"
+PORT="5001"
+INTERVAL="1"
+
+usage() {
+  echo "Usage:"
+  echo "  siperf <source-server> <destination-server> [options]"
+  echo
+  echo "Options:"
+  echo "  rate <rate>        UDP rate. Default: 100M"
+  echo "  time <seconds>     Test duration. Default: 30"
+  echo "  port <port>        UDP port. Default: 5001"
+  echo "  interval <seconds> Report interval. Default: 1"
+  echo
+  echo "Examples:"
+  echo "  siperf s1 s2"
+  echo "  siperf s1 s2 rate 100M time 30"
+  echo "  siperf s1 s2 rate 500M time 30"
+  echo "  siperf s1 s2 rate 1G time 60"
+  echo "  siperf s3 s4 rate 100M time 30"
+  echo "  siperf s4 s1 rate 50M time 20 port 5004"
+  exit 1
+}
+
+server_info() {
+  case "$1" in
+    server1|s1) echo "server1 vrf-s1 10.10.10.1 server1" ;;
+    server2|s2) echo "server2 vrf-s2 10.10.10.2 server2" ;;
+    server3|s3) echo "server3 vrf-s3 10.10.10.3 server3" ;;
+    server4|s4) echo "server4 vrf-s4 10.10.10.4 server4" ;;
+    *)
+      echo "ERROR: unsupported server: $1" >&2
+      exit 1
+      ;;
+  esac
+}
+
+[[ -z "$SRC" || -z "$DST" || "$SRC" == "-h" || "$SRC" == "--help" ]] && usage
+
+read SRC_CONT SRC_VRF SRC_IP SRC_NAME <<<"$(server_info "$SRC")"
+read DST_CONT DST_VRF DST_IP DST_NAME <<<"$(server_info "$DST")"
+
+shift 2
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    rate)
+      RATE="${2:-}"
+      [[ -n "$RATE" ]] || { echo "ERROR: rate needs value"; exit 1; }
+      shift 2
+      ;;
+    time)
+      TIME="${2:-}"
+      [[ -n "$TIME" ]] || { echo "ERROR: time needs value"; exit 1; }
+      shift 2
+      ;;
+    port)
+      PORT="${2:-}"
+      [[ -n "$PORT" ]] || { echo "ERROR: port needs value"; exit 1; }
+      shift 2
+      ;;
+    interval)
+      INTERVAL="${2:-}"
+      [[ -n "$INTERVAL" ]] || { echo "ERROR: interval needs value"; exit 1; }
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      ;;
+    *)
+      echo "ERROR: unsupported option: $1"
+      usage
+      ;;
+  esac
+done
+
+LOG="/tmp/siperf-${SRC_NAME}-to-${DST_NAME}-${PORT}.log"
+
+echo "IPERF2 UDP ${SRC_NAME} (${SRC_IP}) -> ${DST_NAME} (${DST_IP})"
+echo "SRC: ${SRC_VRF}, container ${SRC_CONT}"
+echo "DST: ${DST_VRF}, container ${DST_CONT}"
+echo "RATE: ${RATE}"
+echo "TIME: ${TIME}"
+echo "PORT: ${PORT}"
+echo
+
+command -v docker >/dev/null 2>&1 || {
+  echo "ERROR: docker command not found. Run this from the host."
+  exit 1
+}
+
+docker ps --format '{{.Names}}' | grep -qx "$SRC_CONT" || {
+  echo "ERROR: source container $SRC_CONT is not running"
+  exit 1
+}
+
+docker ps --format '{{.Names}}' | grep -qx "$DST_CONT" || {
+  echo "ERROR: destination container $DST_CONT is not running"
+  exit 1
+}
+
+docker exec "$SRC_CONT" bash -lc "command -v iperf >/dev/null" || {
+  echo "ERROR: iperf not found in $SRC_CONT"
+  exit 1
+}
+
+docker exec "$DST_CONT" bash -lc "command -v iperf >/dev/null" || {
+  echo "ERROR: iperf not found in $DST_CONT"
+  exit 1
+}
+
+echo "[cleanup] killing old iperf/iperf3..."
+for s in server1 server2 server3 server4; do
+  docker exec "$s" pkill -x iperf 2>/dev/null || true
+  docker exec "$s" pkill -x iperf3 2>/dev/null || true
+done
+
+SERVER_CMD="ip vrf exec ${DST_VRF} iperf -s -u -B ${DST_IP} -p ${PORT} -i ${INTERVAL}"
+CLIENT_CMD="ip vrf exec ${SRC_VRF} iperf -c ${DST_IP} -u -B ${SRC_IP} -p ${PORT} -b ${RATE} -t ${TIME} -i ${INTERVAL}"
+
+echo "[server] docker exec ${DST_CONT} ${SERVER_CMD}"
+docker exec "$DST_CONT" bash -lc "$SERVER_CMD" >"$LOG" 2>&1 &
+SERVER_PID=$!
+
+cleanup() {
+  kill "$SERVER_PID" 2>/dev/null || true
+  docker exec "$DST_CONT" pkill -x iperf 2>/dev/null || true
+}
+trap cleanup EXIT
+
+sleep 2
+
+echo "[verify] server process:"
+docker exec "$DST_CONT" bash -lc "pgrep -a iperf || true"
+echo
+
+echo "[client] docker exec ${SRC_CONT} ${CLIENT_CMD}"
+echo
+
+docker exec "$SRC_CONT" bash -lc "$CLIENT_CMD"
+
+echo
+echo "========== Server-side iperf result =========="
+cat "$LOG" || true
+
+trap - EXIT
+docker exec "$DST_CONT" pkill -x iperf 2>/dev/null || true
+
+chmod +x /usr/local/bin/siperf

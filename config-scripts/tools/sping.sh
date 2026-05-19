@@ -1,0 +1,113 @@
+#!/bin/bash
+set -e
+
+SRC="${1:-}"
+DST="${2:-}"
+
+# Defaults
+SIZE=""
+INTERVAL=""
+COUNT="5"
+DF="no"
+
+usage() {
+  echo "Usage:"
+  echo "  sping <source-server> <destination-server> [options]"
+  echo
+  echo "Options:"
+  echo "  size <bytes>        Ping payload size"
+  echo "  interval <seconds>  Ping interval"
+  echo "  count <number>      Number of packets"
+  echo "  df                  Set Don't Fragment bit"
+  echo
+  echo "Examples:"
+  echo "  sping s1 s2"
+  echo "  sping s1 s2 count 100"
+  echo "  sping s1 s2 size 1400 count 100"
+  echo "  sping s1 s2 size 1400 interval 0.01 count 10000"
+  echo "  sping s1 s2 size 4000 df count 10"
+  echo "  sping s1 s2 size 8972 df count 10"
+  echo
+  echo "Notes:"
+  echo "  IPv4 ping total frame size is payload + 28 bytes."
+  echo "  For MTU 1500, max payload with DF is 1472."
+  echo "  For MTU 9000, max payload with DF is 8972."
+  exit 1
+}
+
+if [[ "$SRC" == "-h" || "$SRC" == "--help" || -z "$SRC" || -z "$DST" ]]; then
+  usage
+fi
+
+case "$SRC" in
+  server1|s1) VRF="vrf-s1"; SRC_IF="b1.1001"; SRC_IP="10.10.10.1"; SRC_NAME="server1" ;;
+  server2|s2) VRF="vrf-s2"; SRC_IF="b2.1001"; SRC_IP="10.10.10.2"; SRC_NAME="server2" ;;
+  server3|s3) VRF="vrf-s3"; SRC_IF="b3.1001"; SRC_IP="10.10.10.3"; SRC_NAME="server3" ;;
+  server4|s4) VRF="vrf-s4"; SRC_IF="b4.1001"; SRC_IP="10.10.10.4"; SRC_NAME="server4" ;;
+  *) echo "ERROR: unsupported source server: $SRC"; usage ;;
+esac
+
+case "$DST" in
+  server1|s1) DST_IP="10.10.10.1"; DST_NAME="server1" ;;
+  server2|s2) DST_IP="10.10.10.2"; DST_NAME="server2" ;;
+  server3|s3) DST_IP="10.10.10.3"; DST_NAME="server3" ;;
+  server4|s4) DST_IP="10.10.10.4"; DST_NAME="server4" ;;
+  *) echo "ERROR: unsupported destination server: $DST"; usage ;;
+esac
+
+shift 2
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    size)
+      SIZE="${2:-}"
+      [[ -n "$SIZE" ]] || { echo "ERROR: size requires a value"; exit 1; }
+      shift 2
+      ;;
+    interval)
+      INTERVAL="${2:-}"
+      [[ -n "$INTERVAL" ]] || { echo "ERROR: interval requires a value"; exit 1; }
+      shift 2
+      ;;
+    count)
+      COUNT="${2:-}"
+      [[ -n "$COUNT" ]] || { echo "ERROR: count requires a value"; exit 1; }
+      shift 2
+      ;;
+    df)
+      DF="yes"
+      shift
+      ;;
+    -h|--help)
+      usage
+      ;;
+    *)
+      echo "ERROR: unsupported option: $1"
+      usage
+      ;;
+  esac
+done
+
+CMD=(ip vrf exec "$VRF" ping -I "$SRC_IF" -c "$COUNT")
+
+if [[ -n "$SIZE" ]]; then
+  CMD+=(-s "$SIZE")
+fi
+
+if [[ -n "$INTERVAL" ]]; then
+  CMD+=(-i "$INTERVAL")
+fi
+
+if [[ "$DF" == "yes" ]]; then
+  CMD+=(-M do)
+fi
+
+CMD+=("$DST_IP")
+
+echo "PING ${DST_NAME} (${DST_IP}) from ${SRC_NAME} (${SRC_IP}) via ${SRC_IF}"
+echo "CMD: ${CMD[*]}"
+echo
+
+exec "${CMD[@]}"
+
+chmod +x /usr/local/bin/sping

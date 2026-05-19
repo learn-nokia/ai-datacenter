@@ -215,3 +215,55 @@ spec:
       systemPoolIPv4: systemipv4-pool
   systemPoolIPv4: systemipv4-pool
 ```
+
+## Tools
+
+### SPING
+
+```
+# Normal
+sping s1 s2
+
+# 100 normal pings
+sping s1 s2 count 100
+
+# Aggressive, 1400-byte payload, 100 pings/sec
+sping s1 s2 size 1400 interval 0.01 count 10000
+
+# Safe MTU 1500 max payload with DF
+sping s1 s2 size 1472 df count 10
+
+# Try 4000-byte payload, requires MTU bigger than 4028
+sping s1 s2 size 4000 df count 10
+
+# Jumbo payload, requires MTU 9000 end-to-end
+sping s1 s2 size 8972 df count 10
+
+# Jumbo with lower rate
+sping s1 s2 size 8972 interval 0.5 df count 20
+```
+
+### SIPERF
+
+```
+# Basic TCP test from server1 to server2
+siperf s1 s2
+
+# 30-second TCP test
+siperf s1 s2 time 30
+
+# TCP test with 4 parallel streams
+siperf s1 s2 time 30 parallel 4
+
+# UDP test at 1G for 20 seconds
+siperf s1 s2 udp bandwidth 1G time 20
+
+# Reverse direction test using iperf3 -R
+siperf s1 s2 reverse time 20
+
+# Cross-rack test
+siperf s1 s4 time 30 parallel 4
+
+# Server3 to server4 local-pair test
+siperf s3 s4 time 20 parallel 2
+```
