@@ -1,7 +1,7 @@
 apiVersion: aifabrics.eda.nokia.com/v1
 kind: Backend
 metadata:
-  name: ai-backend-fabric
+  name: abackend
   namespace: eda
 spec:
   addressAllocation:
@@ -30,6 +30,6 @@ spec:
       name: stripe1
       nodeSelectors:
         - eda.nokia.com/role = rail
-      stripeID: 101
+      stripeID: 1
       systemPoolIPv4: systemipv4-pool
   systemPoolIPv4: systemipv4-pool
