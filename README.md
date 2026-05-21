@@ -285,9 +285,62 @@ Local Gateway from Server-1 to GW1
 
 ```
 ip vrf exec vrf-s1 ping6 -I s1eth11 -c 5 fd00:100:101:1::1
+```
 
 GPU1 to GPU 2
 
 ```
 ip vrf exec vrf-s1 ping6 -I s1eth11 -c 5 fd00:100:101:2::2
+```
+
+## Prepare VM Host for RDMA
+
+
+```
+dnf install -y libibverbs-utils
+dnf install -y rdma-core rdma-core-devel libibverbs libibverbs-utils perftest iproute iproute-tc kernel-modules-extra
+
+modinfo rdma_rxe
+modprobe rdma_rxe
+lsmod | grep rxe
+```
+
+Make sure you get these modules loaded from the last command:
+
+```
+rdma_rxe
+ib_uverbs
+ib_core
+```
+
+sample:
+
+```
+[root@chinog2026 mozaman]# lsmod | grep rxe
+rdma_rxe              208896  0
+ib_uverbs             217088  1 rdma_rxe
+ip6_udp_tunnel         16384  1 rdma_rxe
+udp_tunnel             36864  1 rdma_rxe
+ib_core               573440  2 rdma_rxe,ib_uverbs
+```
+
+How to make it persistent across reboots:
+
+```
+cat >/etc/modules-load.d/rdma-rxe.conf <<'EOF'
+rdma_rxe
+EOF
+```
+
+### Security patch
+
+```
+dnf config-manager --set-enabled security
+dnf update -y 
+```
+
+Expected output:
+
+```
+5.14.0-611.55.1.el9_7.0.3.x86_64
 ```

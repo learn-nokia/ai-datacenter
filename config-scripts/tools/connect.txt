@@ -1,0 +1,114 @@
+cat >/usr/local/bin/connect <<'EOF'
+
+
+#!/bin/bash
+
+# 1. FIXED: Set up Kubernetes configuration path explicitly for non-root users
+# Checks common paths; falls back to standard user home directory config if available
+if [ -f "/etc/kubernetes/admin.conf" ]; then
+    export KUBECONFIG="/etc/kubernetes/admin.conf"
+elif [ -f "$HOME/.kube/config" ]; then
+    export KUBECONFIG="$HOME/.kube/config"
+fi
+
+# Absolute path to your lab workspace directory
+CX_DIR="/home/nokiauser/ai-datacenter/eda-telemetry-lab/cx"
+CORE_NS="eda-system"
+
+# 2. Fetch available K8s nodes dynamically
+get_nodes() {
+    # Suppress standard error streams to keep menu rendering clean
+    kubectl --namespace "${CORE_NS}" get pods -l cx-cluster-name=eda \
+    -o=jsonpath='{.items[*].metadata.labels.cx-pod-name}' 2>/dev/null | tr ' ' '\n' | sort
+}
+
+mapfile -t nodes < <(get_nodes)
+num_nodes=${#nodes[@]}
+
+# 3. DYNAMIC: Fetch all running container names and IDs matching 'server'
+mapfile -t docker_raw < <(docker ps --filter "status=running" --format "{{.Names}}:{{.ID}}" 2>/dev/null | grep -E '^server[0-9]+' | sort)
+
+servers=()
+server_ids=()
+
+for item in "${docker_raw[@]}"; do
+    servers+=("${item%%:*}")
+    server_ids+=("${item#*:}")
+done
+
+num_servers=${#servers[@]}
+
+# Calculate total items in the menu
+total_options=$((num_nodes + num_servers))
+
+if [ $total_options -eq 0 ]; then
+    echo "No active K8s nodes or Docker servers found."
+    exit 1
+fi
+
+# 4. Display the combined selection menu
+echo "====================================="
+echo " Available Targets to Log In"
+echo "====================================="
+echo "--- Network Nodes ---"
+for i in "${!nodes[@]}"; do
+    printf "[%2d] %s\n" "$((i+1))" "${nodes[$i]}"
+done
+
+if [ $num_servers -gt 0 ]; then
+    echo "--- Docker Servers ---"
+    for i in "${!servers[@]}"; do
+        printf "[%2d] %s\n" "$((num_nodes + i + 1))" "${servers[$i]}"
+    done
+fi
+echo "====================================="
+
+# 5. Prompt user for selection
+while true; do
+    read -p "Enter the target number: " choice
+
+    if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le "$total_options" ]; then
+
+        # Scenario A: User selected a Kubernetes Network Node
+        if [ "$choice" -le "$num_nodes" ]; then
+            selected_node="${nodes[$((choice-1))]}"
+            echo "Connecting to network node: $selected_node..."
+
+            TOOLBOX_POD=$(kubectl get pods -n "${CORE_NS}" -o custom-columns=NAME:.metadata.name,LABELS:.metadata.labels 2>/dev/null | awk '/eda-toolbox/ {print $1; exit}')
+            if [ -z "${TOOLBOX_POD}" ]; then
+                echo "Error: Could not find the eda-toolbox pod."
+                exit 1
+            fi
+
+            NODE_ADDR=$(kubectl -n eda get targetnode "${selected_node}" -o jsonpath='{.spec.address}' 2>/dev/null)
+
+            kubectl -n "${CORE_NS}" exec -it "${TOOLBOX_POD}" -- bash -c "
+                export SSH_ASKPASS_REQUIRE=force
+                export DISPLAY=:0
+                export SSH_ASKPASS=\$(mktemp)
+                echo '#!/bin/bash' > \${SSH_ASKPASS}
+                echo 'echo \"NokiaSrl1!\"' >> \${SSH_ASKPASS}
+                chmod +x \${SSH_ASKPASS}
+                ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22 admin@${NODE_ADDR}
+                rm -f \${SSH_ASKPASS}
+            "
+            break
+
+        # Scenario B: User selected a dynamically discovered Docker Server container
+        else
+            server_idx=$((choice - num_nodes - 1))
+            selected_server="${servers[$server_idx]}"
+            selected_id="${server_ids[$server_idx]}"
+
+            echo "Executing bash inside container: $selected_server ($selected_id)..."
+            docker exec -it "$selected_id" bash
+            break
+        fi
+    else
+        echo "Invalid selection. Please enter a number between 1 and $total_options."
+    fi
+done
+
+EOF
+
+chmod +x /usr/local/bin/connect

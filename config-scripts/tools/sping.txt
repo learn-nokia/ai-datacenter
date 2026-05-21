@@ -3,6 +3,11 @@ cat >/usr/local/bin/sping <<'EOF'
 #!/bin/bash
 set -e
 
+# Auto-sudo because "ip vrf exec" needs root/cgroup permission
+if [ "$EUID" -ne 0 ]; then
+  exec sudo "$0" "$@"
+fi
+
 SRC="${1:-}"
 DST="${2:-}"
 
@@ -11,29 +16,41 @@ SIZE=""
 INTERVAL=""
 COUNT="5"
 DF="no"
+IP_MODE="ipv4"
 
 usage() {
   echo "Usage:"
   echo "  sping <source-server> <destination-server> [options]"
+  echo "  sping <source-server> <rail1|rail2> [options]"
   echo
   echo "Options:"
+  echo "  ipv4                Use frontend IPv4 fabric path. Default for server-to-server."
+  echo "  ipv6                Use backend IPv6 path."
   echo "  size <bytes>        Ping payload size"
   echo "  interval <seconds>  Ping interval"
   echo "  count <number>      Number of packets"
-  echo "  df                  Set Don't Fragment bit"
+  echo "  df                  Set Don't Fragment bit for IPv4"
   echo
-  echo "Examples:"
+  echo "IPv4 examples:"
   echo "  sping s1 s2"
   echo "  sping s1 s2 count 100"
   echo "  sping s1 s2 size 1400 count 100"
   echo "  sping s1 s2 size 1400 interval 0.01 count 10000"
   echo "  sping s1 s2 size 4000 df count 10"
-  echo "  sping s1 s2 size 8972 df count 10"
+  echo
+  echo "IPv6 examples:"
+  echo "  sping s1 s2 ipv6"
+  echo "  sping s2 s1 ipv6"
+  echo "  sping s3 s4 ipv6"
+  echo "  sping s1 rail1"
+  echo "  sping s1 rail2"
+  echo "  sping s2 rail1 count 10"
   echo
   echo "Notes:"
   echo "  IPv4 ping total frame size is payload + 28 bytes."
-  echo "  For MTU 1500, max payload with DF is 1472."
-  echo "  For MTU 9000, max payload with DF is 8972."
+  echo "  IPv6 ping total frame size is payload + 48 bytes."
+  echo "  For IPv4 MTU 1500, max payload with DF is 1472."
+  echo "  For IPv6 MTU 1500, max payload is usually 1452."
   exit 1
 }
 
@@ -42,25 +59,101 @@ if [[ "$SRC" == "-h" || "$SRC" == "--help" || -z "$SRC" || -z "$DST" ]]; then
 fi
 
 case "$SRC" in
-  server1|s1) VRF="vrf-s1"; SRC_IF="b1.1001"; SRC_IP="10.10.10.1"; SRC_NAME="server1" ;;
-  server2|s2) VRF="vrf-s2"; SRC_IF="b2.1001"; SRC_IP="10.10.10.2"; SRC_NAME="server2" ;;
-  server3|s3) VRF="vrf-s3"; SRC_IF="b3.1001"; SRC_IP="10.10.10.3"; SRC_NAME="server3" ;;
-  server4|s4) VRF="vrf-s4"; SRC_IF="b4.1001"; SRC_IP="10.10.10.4"; SRC_NAME="server4" ;;
-  *) echo "ERROR: unsupported source server: $SRC"; usage ;;
+  server1|s1)
+    VRF="vrf-s1"
+    SRC_IF4="b1.1001"
+    SRC_IP4="10.10.10.1"
+    SRC_IF6_PRIMARY="s1eth11"
+    SRC_IP6_PRIMARY="fd00:100:101:1::2"
+    SRC_RAIL1_GW="fd00:100:101:1::1"
+    SRC_RAIL2_GW="fd00:100:201:1::1"
+    SRC_NAME="server1"
+    ;;
+  server2|s2)
+    VRF="vrf-s2"
+    SRC_IF4="b2.1001"
+    SRC_IP4="10.10.10.2"
+    SRC_IF6_PRIMARY="s2eth11"
+    SRC_IP6_PRIMARY="fd00:100:101:2::2"
+    SRC_RAIL1_GW="fd00:100:101:2::1"
+    SRC_RAIL2_GW="fd00:100:201:2::1"
+    SRC_NAME="server2"
+    ;;
+  server3|s3)
+    VRF="vrf-s3"
+    SRC_IF4="b3.1001"
+    SRC_IP4="10.10.10.3"
+    SRC_IF6_PRIMARY="s3eth11"
+    SRC_IP6_PRIMARY="fd00:100:101:3::3"
+    SRC_RAIL1_GW="fd00:100:101:3::1"
+    SRC_RAIL2_GW="fd00:100:201:3::1"
+    SRC_NAME="server3"
+    ;;
+  server4|s4)
+    VRF="vrf-s4"
+    SRC_IF4="b4.1001"
+    SRC_IP4="10.10.10.4"
+    SRC_IF6_PRIMARY="s4eth11"
+    SRC_IP6_PRIMARY="fd00:100:101:4::4"
+    SRC_RAIL1_GW="fd00:100:101:4::1"
+    SRC_RAIL2_GW="fd00:100:201:4::1"
+    SRC_NAME="server4"
+    ;;
+  *)
+    echo "ERROR: unsupported source server: $SRC"
+    usage
+    ;;
 esac
 
 case "$DST" in
-  server1|s1) DST_IP="10.10.10.1"; DST_NAME="server1" ;;
-  server2|s2) DST_IP="10.10.10.2"; DST_NAME="server2" ;;
-  server3|s3) DST_IP="10.10.10.3"; DST_NAME="server3" ;;
-  server4|s4) DST_IP="10.10.10.4"; DST_NAME="server4" ;;
-  *) echo "ERROR: unsupported destination server: $DST"; usage ;;
+  server1|s1)
+    DST_IP4="10.10.10.1"
+    DST_IP6="fd00:100:101:1::2"
+    DST_NAME="server1"
+    ;;
+  server2|s2)
+    DST_IP4="10.10.10.2"
+    DST_IP6="fd00:100:101:2::2"
+    DST_NAME="server2"
+    ;;
+  server3|s3)
+    DST_IP4="10.10.10.3"
+    DST_IP6="fd00:100:101:3::3"
+    DST_NAME="server3"
+    ;;
+  server4|s4)
+    DST_IP4="10.10.10.4"
+    DST_IP6="fd00:100:101:4::4"
+    DST_NAME="server4"
+    ;;
+  rail1|r1)
+    IP_MODE="ipv6"
+    DST_IP6="$SRC_RAIL1_GW"
+    DST_NAME="rail1-gateway"
+    ;;
+  rail2|r2)
+    IP_MODE="ipv6"
+    DST_IP6="$SRC_RAIL2_GW"
+    DST_NAME="rail2-gateway"
+    ;;
+  *)
+    echo "ERROR: unsupported destination: $DST"
+    usage
+    ;;
 esac
 
 shift 2
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    ipv4)
+      IP_MODE="ipv4"
+      shift
+      ;;
+    ipv6|v6)
+      IP_MODE="ipv6"
+      shift
+      ;;
     size)
       SIZE="${2:-}"
       [[ -n "$SIZE" ]] || { echo "ERROR: size requires a value"; exit 1; }
@@ -90,23 +183,34 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-CMD=(ip vrf exec "$VRF" ping -I "$SRC_IF" -c "$COUNT")
+if [[ "$IP_MODE" == "ipv4" ]]; then
+  CMD=(ip vrf exec "$VRF" ping -I "$SRC_IF4" -c "$COUNT")
 
-if [[ -n "$SIZE" ]]; then
-  CMD+=(-s "$SIZE")
+  [[ -n "$SIZE" ]] && CMD+=(-s "$SIZE")
+  [[ -n "$INTERVAL" ]] && CMD+=(-i "$INTERVAL")
+  [[ "$DF" == "yes" ]] && CMD+=(-M do)
+
+  CMD+=("$DST_IP4")
+
+  echo "PING ${DST_NAME} (${DST_IP4}) from ${SRC_NAME} (${SRC_IP4}) via ${SRC_IF4}"
+  echo "CMD: ${CMD[*]}"
+  echo
+
+  exec "${CMD[@]}"
 fi
 
-if [[ -n "$INTERVAL" ]]; then
-  CMD+=(-i "$INTERVAL")
-fi
+CMD=(ip vrf exec "$VRF" ping -6 -c "$COUNT")
+
+[[ -n "$SIZE" ]] && CMD+=(-s "$SIZE")
+[[ -n "$INTERVAL" ]] && CMD+=(-i "$INTERVAL")
 
 if [[ "$DF" == "yes" ]]; then
-  CMD+=(-M do)
+  echo "NOTE: df is mainly for IPv4. IPv6 does not fragment in transit."
 fi
 
-CMD+=("$DST_IP")
+CMD+=("$DST_IP6")
 
-echo "PING ${DST_NAME} (${DST_IP}) from ${SRC_NAME} (${SRC_IP}) via ${SRC_IF}"
+echo "PING6 ${DST_NAME} (${DST_IP6}) from ${SRC_NAME} (${SRC_IP6_PRIMARY})"
 echo "CMD: ${CMD[*]}"
 echo
 
