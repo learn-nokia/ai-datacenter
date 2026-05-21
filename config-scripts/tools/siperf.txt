@@ -1,3 +1,5 @@
+cat >/usr/local/bin/siperf <<'EOF'
+
 #!/bin/bash
 set -euo pipefail
 
@@ -152,5 +154,7 @@ cat "$LOG" || true
 
 trap - EXIT
 docker exec "$DST_CONT" pkill -x iperf 2>/dev/null || true
+
+EOF
 
 chmod +x /usr/local/bin/siperf

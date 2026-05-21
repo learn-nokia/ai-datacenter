@@ -1,3 +1,5 @@
+cat >/usr/local/bin/sping <<'EOF'
+
 #!/bin/bash
 set -e
 
@@ -109,5 +111,7 @@ echo "CMD: ${CMD[*]}"
 echo
 
 exec "${CMD[@]}"
+
+EOF
 
 chmod +x /usr/local/bin/sping

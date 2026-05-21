@@ -1,3 +1,12 @@
+sudo modprobe ib_core
+sudo modprobe ib_uverbs
+sudo modprobe rdma_cm
+sudo modprobe rdma_ucm
+sudo modprobe iw_cm
+sudo modprobe rdma_rxe
+sudo modprobe vrf
+
+
 for s in server1 server2 server3 server4; do
   docker rm -f "$s" 2>/dev/null || true
   docker run -dit \

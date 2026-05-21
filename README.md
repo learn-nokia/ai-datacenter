@@ -267,3 +267,27 @@ siperf s1 s4 time 30 parallel 4
 # Server3 to server4 local-pair test
 siperf s3 s4 time 20 parallel 2
 ```
+
+| Server  | Interface | Connected rail | Server IPv6            | Gateway             |
+| ------- | --------- | -------------- | ---------------------- | ------------------- |
+| server1 | `s1eth11` | rail1 e1/1     | `fd00:100:101:1::2/64` | `fd00:100:101:1::1` |
+| server2 | `s2eth11` | rail1 e1/2     | `fd00:100:101:2::2/64` | `fd00:100:101:2::1` |
+| server3 | `s3eth11` | rail1 e1/3     | `fd00:100:101:3::3/64` | `fd00:100:101:3::1` |
+| server4 | `s4eth11` | rail1 e1/4     | `fd00:100:101:4::4/64` | `fd00:100:101:4::1` |
+| server1 | `s1eth12` | rail2 e1/1     | `fd00:100:201:1::2/64` | `fd00:100:201:1::1` |
+| server2 | `s2eth12` | rail2 e1/2     | `fd00:100:201:2::2/64` | `fd00:100:201:2::1` |
+| server3 | `s3eth12` | rail2 e1/3     | `fd00:100:201:3::3/64` | `fd00:100:201:3::1` |
+| server4 | `s4eth12` | rail2 e1/4     | `fd00:100:201:4::4/64` | `fd00:100:201:4::1` |
+
+## AI Back Ping Test
+
+Local Gateway from Server-1 to GW1
+
+```
+ip vrf exec vrf-s1 ping6 -I s1eth11 -c 5 fd00:100:101:1::1
+
+GPU1 to GPU 2
+
+```
+ip vrf exec vrf-s1 ping6 -I s1eth11 -c 5 fd00:100:101:2::2
+```
