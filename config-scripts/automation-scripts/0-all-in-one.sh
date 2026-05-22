@@ -18,18 +18,6 @@ log() {
   echo "[$(date '+%F %T')] $*"
 }
 
-
-#### Creating Servers
-
-# sudo modprobe ib_core
-# sudo modprobe ib_uverbs
-# sudo modprobe rdma_cm
-# sudo modprobe rdma_ucm
-# sudo modprobe iw_cm
-# sudo modprobe rdma_rxe
-# sudo modprobe vrf
-
-
 echo "[Creating Servers] Spinning up server"
 
 docker rm -f server1 server2 server3 server4 2>/dev/null || true
@@ -653,16 +641,23 @@ verify_server_host server2
 verify_server_host server3
 verify_server_host server4
 
+
 #######################################
-####### ROCEv2 section ################
+####### ROCEv2 local test section #####
 #######################################
 
-echo "[cleanup] removing old RXE devices..."
+echo "[cleanup] removing old local RXE/veth test devices..."
 rdma link delete rxe1 2>/dev/null || true
 rdma link delete rxe2 2>/dev/null || true
+ip link delete rxe-net1 2>/dev/null || true
 
 echo "[setup] loading rdma_rxe..."
 modprobe rdma_rxe
+modprobe ib_uverbs
+modprobe rdma_ucm
+
+echo "[setup] creating local veth pair rxe-net1 <--> rxe-net2..."
+ip link add rxe-net1 type veth peer name rxe-net2
 
 echo "[setup] configuring IPv4 addresses..."
 ip addr replace 172.30.60.11/24 dev rxe-net1
@@ -676,13 +671,13 @@ echo "[setup] bringing interfaces up..."
 ip link set rxe-net1 mtu 1500 up
 ip link set rxe-net2 mtu 1500 up
 
-echo "[setup] creating Soft-RoCE devices..."
+echo "[setup] creating local Soft-RoCE test devices..."
 rdma link add rxe1 type rxe netdev rxe-net1
 rdma link add rxe2 type rxe netdev rxe-net2
 
-echo "[verify] IP addresses:"
-ip addr show rxe-net1
-ip addr show rxe-net2
+echo "[verify] local test IP addresses:"
+ip -br addr show rxe-net1
+ip -br addr show rxe-net2
 
 echo "[verify] RDMA links:"
 rdma link show

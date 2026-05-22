@@ -378,3 +378,17 @@ root@chinog2026:/# ib_send_lat -d rxe2 -F --ipv6 --ipv6-addr -x 2 -R --report_gb
  2       1000          4.06           15.17        5.36     	       5.48        	0.88   		11.58   		15.17
 ---------------------------------------------------------------------------------------
 ```
+
+### INstall show gids utility
+
+```
+# 1. Download the tool directly into your system executable directory
+sudo curl -sSLo /usr/local/bin/show_gids https://raw.githubusercontent.com/Mellanox/mlnx-tools/master/sbin/show_gids
+
+# 2. Grant execution permissions 
+sudo chmod +x /usr/local/bin/show_gids
+
+# 3. Force a quick system path rehash to register the binary instantly
+hash -r
+
+```

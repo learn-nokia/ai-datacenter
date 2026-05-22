@@ -1,4 +1,4 @@
-cat >/usr/local/bin/connect <<'EOF'
+cat >/usr/bin/connect <<'EOF'
 
 
 #!/bin/bash
@@ -111,4 +111,4 @@ done
 
 EOF
 
-chmod +x /usr/local/bin/connect
+chmod +x /usr/bin/connect
