@@ -1,19 +1,38 @@
 #!/bin/bash
+set -euo pipefail
+
+LOCKFILE="/run/eda-cx-all-in-one.lock"
+exec 9>"$LOCKFILE"
+
+if ! flock -n 9; then
+  echo "ERROR: another instance of this script is already running."
+  echo
+  ps -ef | egrep '0-all-in-one|automation-scripts|ip link add|ip link del|ip link set' | grep -v grep || true
+  exit 1
+fi
+
+SCRIPT_PID="$$"
+SCRIPT_START_TS="$(date '+%F %T')"
+
+log() {
+  echo "[$(date '+%F %T')] $*"
+}
+
 
 #### Creating Servers
 
-sudo modprobe ib_core
-sudo modprobe ib_uverbs
-sudo modprobe rdma_cm
-sudo modprobe rdma_ucm
-sudo modprobe iw_cm
-sudo modprobe rdma_rxe
-sudo modprobe vrf
+# sudo modprobe ib_core
+# sudo modprobe ib_uverbs
+# sudo modprobe rdma_cm
+# sudo modprobe rdma_ucm
+# sudo modprobe iw_cm
+# sudo modprobe rdma_rxe
+# sudo modprobe vrf
 
 
 echo "[Creating Servers] Spinning up server"
 
-docker rm server1 server2 server3 server4 --force
+docker rm -f server1 server2 server3 server4 2>/dev/null || true
 sleep 2
 
 
@@ -34,8 +53,6 @@ sleep 4
 
 #####
 #####
-
-set -e
 
 NS="eda-system"
 
@@ -113,6 +130,12 @@ vrf_table() {
 
 delete_if_in_host() {
   local ifname="$1"
+
+  if ! ip link show dev "$ifname" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  log "[cleanup-host] deleting $ifname"
   ip link del "$ifname" 2>/dev/null || true
 }
 
@@ -132,24 +155,81 @@ delete_if_in_srl_srbase() {
   nsenter -t "$pid" -m -n ip netns exec srbase ip link del "$ifname" 2>/dev/null || true
 }
 
-cleanup_links() {
-  echo "[cleanup] deleting RXE devices..."
+wait_for_bond_slave() {
+    local bond="$1"
+    local slave="$2"
+    local i
 
+    for i in $(seq 1 20); do
+      if grep -q "Slave Interface: ${slave}$" "/proc/net/bonding/${bond}" 2>/dev/null; then
+        return 0
+      fi
+      sleep 0.2
+    done
+
+    echo "ERROR: $slave did not attach to $bond"
+    echo "[debug] link state:"
+    ip -br link show dev "$slave" || true
+    ip -br link show dev "$bond" || true
+    echo "[debug] /proc/net/bonding/$bond:"
+    cat "/proc/net/bonding/${bond}" || true
+    return 1
+  }
+
+cleanup_links() {
+  log "================================================================"
+  log "[cleanup] START"
+  log "[cleanup] PID=${SCRIPT_PID} PPID=${PPID} USER=$(whoami) TTY=$(tty || true)"
+  log "[cleanup] CWD=$(pwd)"
+  log "[cleanup] CMDLINE=$(tr '\0' ' ' < /proc/${SCRIPT_PID}/cmdline)"
+  log "================================================================"
+
+  log "[cleanup] deleting RXE devices first..."
   for s in server1 server2 server3 server4; do
     delete_rxe "rxe_${s}_11"
     delete_rxe "rxe_${s}_12"
   done
 
-  echo "[cleanup] deleting host-side server interfaces, bonds, VLANs..."
+  sleep 0.5
 
+  log "[cleanup] deleting VLANs first..."
+  for i in \
+    b1.1001 b2.1001 b3.1001 b4.1001 \
+    b1.201 b2.202 b3.201 b4.202
+  do
+    delete_if_in_host "$i"
+  done
+
+  sleep 0.5
+
+  log "[cleanup] detaching bond slaves before deleting bonds..."
+  for id in 1 2 3 4; do
+    bond="b${id}"
+
+    for slave in "s${id}eth1" "s${id}eth2"; do
+      if ip link show dev "$slave" >/dev/null 2>&1; then
+        log "[cleanup-bond] detach $slave from $bond if attached"
+        ip link set "$slave" down 2>/dev/null || true
+        ip link set "$slave" nomaster 2>/dev/null || true
+      fi
+    done
+  done
+
+  sleep 0.5
+
+  log "[cleanup] deleting bonds..."
+  for i in b1 b2 b3 b4; do
+    delete_if_in_host "$i"
+  done
+
+  sleep 0.5
+
+  log "[cleanup] deleting host-side server veth interfaces..."
   for i in \
     s1eth1 s1eth2 s1eth11 s1eth12 \
     s2eth1 s2eth2 s2eth11 s2eth12 \
     s3eth1 s3eth2 s3eth11 s3eth12 \
     s4eth1 s4eth2 s4eth11 s4eth12 \
-    b1 b2 b3 b4 \
-    b1.1001 b2.1001 b3.1001 b4.1001 \
-    b1.201 b2.202 b3.201 b4.202 \
     s1e1 s1e2 s1e11 s1e12 \
     s2e1 s2e2 s2e11 s2e12 \
     s3e1 s3e2 s3e11 s3e12 \
@@ -162,20 +242,22 @@ cleanup_links() {
     delete_if_in_host "$i"
   done
 
-  echo "[cleanup] deleting Linux VRFs..."
+  sleep 0.5
 
+  log "[cleanup] deleting Linux VRFs..."
   for v in vrf-s1 vrf-s2 vrf-s3 vrf-s4; do
     delete_if_in_host "$v"
   done
 
-  echo "[cleanup] deleting old SR Linux srbase interfaces..."
-
+  log "[cleanup] deleting old SR Linux srbase interfaces..."
   for n in leaf1 leaf2 leaf3 leaf4 rail1 rail2; do
     delete_if_in_srl_srbase "$n" e1-1
     delete_if_in_srl_srbase "$n" e1-2
     delete_if_in_srl_srbase "$n" e1-3
     delete_if_in_srl_srbase "$n" e1-4
   done
+
+  log "[cleanup] DONE"
 }
 
 plug_link() {
@@ -291,6 +373,8 @@ config_server_frontend_and_rdma() {
 
   create_server_vrf "$id"
 
+
+  # BOND Section
   # Frontend bond per server, same logic as old working bond0 script
   # server1: b1 = s1eth1 + s1eth2
   # server2: b2 = s2eth1 + s2eth2
@@ -299,12 +383,15 @@ config_server_frontend_and_rdma() {
 
   echo "[bond-create] $bond using $eth1_vif $eth2_vif"
 
+  # adding helper function to wait for bond slaves to appear in /proc/net/bonding, which is more reliable than iproute2 output for bond slave status
+  
   # Make sure the two member interfaces really exist
   ip link show dev "$eth1_vif" >/dev/null
   ip link show dev "$eth2_vif" >/dev/null
 
   # Delete stale bond if it somehow survived previous cleanup
   ip link del "$bond" 2>/dev/null || true
+  sleep 1
 
   # Create fresh 802.3ad bond, same as your old working script
   ip link add "$bond" type bond mode 802.3ad xmit_hash_policy layer3+4
@@ -318,8 +405,12 @@ config_server_frontend_and_rdma() {
   ip link set "$eth1_vif" nomaster 2>/dev/null || true
   ip link set "$eth2_vif" nomaster 2>/dev/null || true
 
+  sleep 1
+
   ip link set "$eth1_vif" master "$bond"
   ip link set "$eth2_vif" master "$bond"
+
+  sleep 1
 
   ip link set "$eth1_vif" up
   ip link set "$eth2_vif" up
@@ -337,19 +428,8 @@ config_server_frontend_and_rdma() {
 
   # Hard validation using /proc/net/bonding, not ip -br output
   # Some iproute2/kernel versions do not show "master b1" in `ip -br link`.
-  if ! grep -q "Slave Interface: ${eth1_vif}$" "/proc/net/bonding/${bond}"; then
-    echo "ERROR: $eth1_vif did not attach to $bond"
-    echo "[debug] /proc/net/bonding/$bond:"
-    cat "/proc/net/bonding/${bond}" || true
-    exit 1
-  fi
-
-  if ! grep -q "Slave Interface: ${eth2_vif}$" "/proc/net/bonding/${bond}"; then
-    echo "ERROR: $eth2_vif did not attach to $bond"
-    echo "[debug] /proc/net/bonding/$bond:"
-    cat "/proc/net/bonding/${bond}" || true
-    exit 1
-  fi
+  wait_for_bond_slave "$bond" "$eth1_vif" || exit 1
+  wait_for_bond_slave "$bond" "$eth2_vif" || exit 1
 
   echo "[bond-check] $bond OK: $eth1_vif and $eth2_vif attached"
 
@@ -388,14 +468,52 @@ config_server_frontend_and_rdma() {
   ip link set "$eth11_vif" master "$vrf"
   ip link set "$eth12_vif" master "$vrf"
 
-  ip addr flush dev "$eth11_vif" || true
-  ip addr flush dev "$eth12_vif" || true
+  # Let VRF enslave settle
+  sleep 0.5
 
-  ip addr add "$eth11_v4" dev "$eth11_vif"
-  ip addr add "$eth12_v4" dev "$eth12_vif"
+  # Flush existing global addresses only
+  ip addr flush dev "$eth11_vif" scope global || true
+  ip addr flush dev "$eth12_vif" scope global || true
 
-  ip -6 addr add "$eth11_v6" dev "$eth11_vif"
-  ip -6 addr add "$eth12_v6" dev "$eth12_vif"
+  # Re-apply IPv4 addresses safely
+  ip addr replace "$eth11_v4" dev "$eth11_vif"
+  ip addr replace "$eth12_v4" dev "$eth12_vif"
+
+  # Re-apply IPv6 addresses safely; nodad avoids waiting/failing on DAD in lab
+  ip -6 addr replace "$eth11_v6" dev "$eth11_vif" nodad
+  ip -6 addr replace "$eth12_v6" dev "$eth12_vif" nodad
+
+  # Let addresses appear before adding routes/RXE
+  sleep 0.5
+
+  # Bring links up again after addressing
+  ip link set "$eth11_vif" up
+  ip link set "$eth12_vif" up
+
+  # Validate backend addresses before continuing
+  ip addr show dev "$eth11_vif" | grep -q "${eth11_v4%/*}" || {
+    echo "ERROR: $eth11_vif missing IPv4 $eth11_v4"
+    ip addr show dev "$eth11_vif"
+    exit 1
+  }
+
+  ip addr show dev "$eth12_vif" | grep -q "${eth12_v4%/*}" || {
+    echo "ERROR: $eth12_vif missing IPv4 $eth12_v4"
+    ip addr show dev "$eth12_vif"
+    exit 1
+  }
+
+  ip -6 addr show dev "$eth11_vif" | grep -q "${eth11_v6%/*}" || {
+    echo "ERROR: $eth11_vif missing IPv6 $eth11_v6"
+    ip -6 addr show dev "$eth11_vif"
+    exit 1
+  }
+
+  ip -6 addr show dev "$eth12_vif" | grep -q "${eth12_v6%/*}" || {
+    echo "ERROR: $eth12_vif missing IPv6 $eth12_v6"
+    ip -6 addr show dev "$eth12_vif"
+    exit 1
+  }
 
   # Connected backend routes inside VRF
   ip route replace table "$table" "$eth11_v4_net" dev "$eth11_vif" || true
@@ -433,8 +551,16 @@ config_server_frontend_and_rdma() {
   ip neigh flush dev "$eth12_vif" || true
 
   # RXE created on host-side server backend interfaces
-  rdma link add "rxe_${srv}_11" type rxe netdev "$eth11_vif" 2>/dev/null || true
-  rdma link add "rxe_${srv}_12" type rxe netdev "$eth12_vif" 2>/dev/null || true
+  # RXE created only after IP addresses are present
+    rdma link delete "rxe_${srv}_11" 2>/dev/null || true
+    rdma link delete "rxe_${srv}_12" 2>/dev/null || true
+
+    sleep 0.3
+
+    rdma link add "rxe_${srv}_11" type rxe netdev "$eth11_vif"
+    rdma link add "rxe_${srv}_12" type rxe netdev "$eth12_vif"
+
+    sleep 0.5
 }
 
 verify_server_host() {
@@ -488,6 +614,7 @@ modprobe rdma_rxe
 modprobe ib_uverbs
 modprobe rdma_ucm
 
+log "[main] running cleanup_links before rebuilding topology"
 cleanup_links
 
 # Frontend edge links
@@ -571,5 +698,5 @@ echo "Aggressive frontend ping:"
 echo "  ip vrf exec vrf-s1 ping -I b1.1001 -s 1400 -i 0.01 -c 10000 10.10.10.2"
 echo
 echo "RDMA example:"
-echo "  docker exec -it server1 ib_send_bw -d rxe_server1_11 -F --ipv6 --ipv6-addr -x 1 -R"
-echo "  docker exec -it server2 ib_send_bw -d rxe_server2_11 -F --ipv6 --ipv6-addr -x 1 -R fd00:100:101:1::2"
+echo " docker exec -it server1 ib_send_bw -d rxe2 -F --ipv6 --ipv6-addr -x 2 -R --report_gbits"
+echo " docker exec -it server2 ib_send_bw -d rxe1 -F --ipv6 --ipv6-addr -x 2 -R --report_gbits fd00:60::11"

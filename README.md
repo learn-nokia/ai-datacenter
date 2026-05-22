@@ -63,10 +63,10 @@ The test uses two RXE devices:
 
 **Server Side - Server1**
 
-Start the bandwidth test listener on `server1`:
+Start the bandwidth test listener on `server1`
 
 ```
-ib_send_bw -d rxe2 -F --ipv6 --ipv6-addr -x 1 -R
+ib_send_bw -d rxe2 -F --ipv6 --ipv6-addr -x 2 -R --report_gbits
 ```
 
 **Client Side - Server2**
@@ -74,7 +74,7 @@ ib_send_bw -d rxe2 -F --ipv6 --ipv6-addr -x 1 -R
 Start the bandwidth test client on `server2`:
 
 ```
-ib_send_bw -d rxe1 -F --ipv6 --ipv6-addr -x 1 -R fd00:60::11
+ib_send_bw -d rxe1 -F --ipv6 --ipv6-addr -x 2 -R --report_gbits fd00:60::11
 ```
 
 ### Latency Test
@@ -84,7 +84,7 @@ ib_send_bw -d rxe1 -F --ipv6 --ipv6-addr -x 1 -R fd00:60::11
 Start the bandwidth test listener on `server1`:
 
 ```
-ib_send_lat -d rxe2 -F --ipv6 --ipv6-addr -x 1 -R
+ib_send_lat -d rxe2 -F --ipv6 --ipv6-addr -x 2 -R --report_gbits
 ```
 
 **Client Side - Server2**
@@ -92,7 +92,7 @@ ib_send_lat -d rxe2 -F --ipv6 --ipv6-addr -x 1 -R
 Start the bandwidth test client on `server2`:
 
 ```
-ib_send_lat -d rxe1 -F --ipv6 --ipv6-addr -x 1 -R fd00:60::11
+ib_send_lat -d rxe1 -F --ipv6 --ipv6-addr -x 2 -R --report_gbits fd00:60::11
 ```
 
 ## Activity 4: Observability and Validation of the AI Backend Fabric (Streaming Telemetry, Grafana Dashboards)
@@ -343,4 +343,38 @@ Expected output:
 
 ```
 5.14.0-611.55.1.el9_7.0.3.x86_64
+```
+
+```
+root@chinog2026:/# ib_send_lat -d rxe2 -F --ipv6 --ipv6-addr -x 2 -R --report_gbits
+
+************************************
+* Waiting for client to connect... *
+************************************
+---------------------------------------------------------------------------------------
+                    Send Latency Test
+ Dual-port       : OFF		Device         : rxe2
+ Number of qps   : 1		Transport type : IB
+ Connection type : RC		Using SRQ      : OFF
+ PCIe relax order: ON
+ ibv_wr* API     : OFF
+ RX depth        : 512
+ Mtu             : 1024[B]
+ Link type       : Ethernet
+ GID index       : 2
+ Max inline data : 0[B]
+ rdma_cm QPs	 : ON
+ Data ex. method : rdma_cm
+---------------------------------------------------------------------------------------
+ Waiting for client rdma_cm QP to connect
+ Please run the same command with the IB/RoCE interface IP
+---------------------------------------------------------------------------------------
+ local address: LID 0000 QPN 0x002c PSN 0xc03c9c
+ GID: 253:00:00:96:00:00:00:00:00:00:00:00:00:00:00:17
+ remote address: LID 0000 QPN 0x002b PSN 0x574fdb
+ GID: 253:00:00:96:00:00:00:00:00:00:00:00:00:00:00:17
+---------------------------------------------------------------------------------------
+ #bytes #iterations    t_min[usec]    t_max[usec]  t_typical[usec]    t_avg[usec]    t_stdev[usec]   99% percentile[usec]   99.9% percentile[usec]
+ 2       1000          4.06           15.17        5.36     	       5.48        	0.88   		11.58   		15.17
+---------------------------------------------------------------------------------------
 ```
