@@ -653,6 +653,45 @@ verify_server_host server2
 verify_server_host server3
 verify_server_host server4
 
+#######################################
+####### ROCEv2 section ################
+#######################################
+
+echo "[cleanup] removing old RXE devices..."
+rdma link delete rxe1 2>/dev/null || true
+rdma link delete rxe2 2>/dev/null || true
+
+echo "[setup] loading rdma_rxe..."
+modprobe rdma_rxe
+
+echo "[setup] configuring IPv4 addresses..."
+ip addr replace 172.30.60.11/24 dev rxe-net1
+ip addr replace 172.30.60.12/24 dev rxe-net2
+
+echo "[setup] configuring IPv6 addresses..."
+ip -6 addr replace fd00:60::10/127 dev rxe-net1 nodad
+ip -6 addr replace fd00:60::11/127 dev rxe-net2 nodad
+
+echo "[setup] bringing interfaces up..."
+ip link set rxe-net1 mtu 1500 up
+ip link set rxe-net2 mtu 1500 up
+
+echo "[setup] creating Soft-RoCE devices..."
+rdma link add rxe1 type rxe netdev rxe-net1
+rdma link add rxe2 type rxe netdev rxe-net2
+
+echo "[verify] IP addresses:"
+ip addr show rxe-net1
+ip addr show rxe-net2
+
+echo "[verify] RDMA links:"
+rdma link show
+
+#######################################
+#######################################
+#######################################
+
+
 echo
 echo "[done]"
 echo
