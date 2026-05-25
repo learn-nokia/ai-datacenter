@@ -211,6 +211,7 @@ A MAC-VRF provides Layer-2 connectivity for endpoints within the same subnet/VLA
 ### Step 1: Create an Intent for the MAC-VRF 
 
 Navigate to Virtual Networks > Virtual Networks section in EDA in the left navigation pane.
+In the search bar type `virtual`. Click on `Virtual Networks` on bottom left. On the top right, click on `Create`.
 
 ![Alt text](./images/macvrf1.png)
 
@@ -335,6 +336,7 @@ This intent builds the backend rail network used for GPU-to-GPU communication an
 
 EDA uses the configured node and interface selectors to automatically discover the correct rail switches and GPU-facing interfaces.  
 Interfaces labeled for the `nvidia` or `amd` GPU isolation groups are automatically associated with their respective backend fabric groups.
+In the search bar type `ai`. Click on `AI Backends` on bottom left. On the top right, click on `Create`.
 
 ---
 
@@ -342,8 +344,6 @@ Interfaces labeled for the `nvidia` or `amd` GPU isolation groups are automatica
 
 | Field | Value |
 |---|---|
-| API Version | `aifabrics.eda.nokia.com/v1` |
-| Kind | `Backend` |
 | Name | `aibackend` |
 | Namespace | `eda` |
 | IP MTU | `4200` |
@@ -357,6 +357,7 @@ Interfaces labeled for the `nvidia` or `amd` GPU isolation groups are automatica
 
 #### Stripe Configuration
 
+Click on `Add+ for Stripes`.
 A **stripe** represents a backend rail group in the AI fabric.  
 In this example, EDA discovers all nodes labeled with the rail role and includes them in `stripe1`.
 
@@ -364,9 +365,10 @@ In this example, EDA discovers all nodes labeled with the rail role and includes
 |---|---|
 | Stripe Name | `stripe1` |
 | Stripe ID | `1` |
-| Node Selector | `eda.nokia.com/role = rail` |
 | System IPv4 Pool | `ip-pool` |
 | ASN Pool | `asn-pool` |
+| Node Selector | `eda.nokia.com/role = rail` |
+
 
 ---
 
@@ -375,9 +377,12 @@ In this example, EDA discovers all nodes labeled with the rail role and includes
 GPU isolation groups allow the backend fabric to separate GPU traffic based on labels.  
 EDA automatically binds interfaces to the correct isolation group using interface selectors.
 
-| GPU Group | Interface Selector |
+| GPU Isolation Group | Interface Selector |
 |---|---|
+| `Isolation Group` | `nvidia` |
+| Interface Selector |
 | `nvidia` | `eda.nokia.com/gpu_group = nvidia` |
+Click on `Add+` next to GPU Isolation Groups again to add amd isolation group
 | `amd` | `eda.nokia.com/gpu_group = amd` |
 
 ---
