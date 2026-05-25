@@ -1,0 +1,227 @@
+{
+  "freeTextAnnotations": [
+    {
+      "id": "freeText_1779585257696",
+      "text": "Spine Layer",
+      "position": {
+        "x": 667.9866888519135,
+        "y": 56.90515806988353
+      },
+      "fontSize": 20,
+      "fontColor": "#d4d4d4",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "textAlign": "left",
+      "fontFamily": "Arial"
+    },
+    {
+      "id": "freeText_1779585323701",
+      "text": "Leaf Layer",
+      "position": {
+        "x": 670.116472545757,
+        "y": 331.68053244592346
+      },
+      "fontSize": 20,
+      "fontColor": "#d4d4d4",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "textAlign": "left",
+      "fontFamily": "Arial"
+    },
+    {
+      "id": "freeText_1779585341596",
+      "text": "AI Backend",
+      "position": {
+        "x": 672.2356884242721,
+        "y": 744.0091961489497
+      },
+      "fontSize": 20,
+      "fontColor": "#d4d4d4",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "textAlign": "left",
+      "fontFamily": "Arial"
+    },
+    {
+      "id": "freeText_1779585407726",
+      "text": "Server Layer",
+      "position": {
+        "x": 663.9600665557405,
+        "y": 516.3061564059899
+      },
+      "fontSize": 20,
+      "fontColor": "#d4d4d4",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "textAlign": "left",
+      "fontFamily": "Arial"
+    },
+    {
+      "id": "freeText_1779585423093",
+      "text": "Stripe Layer",
+      "position": {
+        "x": 672.8626840507176,
+        "y": 778.8548357488561
+      },
+      "fontSize": 20,
+      "fontColor": "#d4d4d4",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "textAlign": "left",
+      "fontFamily": "Arial"
+    },
+    {
+      "id": "freeText_1779586055845",
+      "text": "Frontend",
+      "position": {
+        "x": 675.8913707417463,
+        "y": 19.86375777213415
+      },
+      "fontSize": 20,
+      "fontColor": "#d4d4d4",
+      "fontWeight": "normal",
+      "fontStyle": "normal",
+      "textDecoration": "none",
+      "textAlign": "left",
+      "fontFamily": "Arial"
+    }
+  ],
+  "freeShapeAnnotations": [],
+  "trafficRateAnnotations": [],
+  "groupStyleAnnotations": [],
+  "networkNodeAnnotations": [],
+  "nodeAnnotations": [
+    {
+      "id": "leaf1",
+      "interfacePattern": "e1-{n}",
+      "position": {
+        "x": 380,
+        "y": 340
+      },
+      "labelPosition": "left",
+      "icon": "pe"
+    },
+    {
+      "id": "leaf2",
+      "interfacePattern": "e1-{n}",
+      "position": {
+        "x": 580,
+        "y": 340
+      },
+      "labelPosition": "left",
+      "icon": "pe"
+    },
+    {
+      "id": "leaf3",
+      "interfacePattern": "e1-{n}",
+      "position": {
+        "x": 800,
+        "y": 340
+      },
+      "labelPosition": "right",
+      "icon": "pe"
+    },
+    {
+      "id": "leaf4",
+      "interfacePattern": "e1-{n}",
+      "position": {
+        "x": 1000,
+        "y": 340
+      },
+      "labelPosition": "right",
+      "icon": "pe"
+    },
+    {
+      "id": "spine1",
+      "interfacePattern": "e1-{n}",
+      "position": {
+        "x": 800,
+        "y": 60
+      },
+      "labelPosition": "top",
+      "icon": "pe"
+    },
+    {
+      "id": "spine2",
+      "interfacePattern": "e1-{n}",
+      "position": {
+        "x": 580,
+        "y": 60
+      },
+      "labelPosition": "top",
+      "icon": "pe"
+    },
+    {
+      "id": "rail1",
+      "interfacePattern": "e1-{n}",
+      "position": {
+        "x": 580,
+        "y": 760
+      }
+    },
+    {
+      "id": "rail2",
+      "interfacePattern": "e1-{n}",
+      "position": {
+        "x": 800,
+        "y": 760
+      }
+    },
+    {
+      "id": "server1",
+      "position": {
+        "x": 380,
+        "y": 520
+      },
+      "labelPosition": "left",
+      "icon": "server"
+    },
+    {
+      "id": "server2",
+      "position": {
+        "x": 580,
+        "y": 520
+      },
+      "labelPosition": "left",
+      "icon": "server"
+    },
+    {
+      "id": "server3",
+      "position": {
+        "x": 800,
+        "y": 520
+      },
+      "labelPosition": "right",
+      "icon": "server"
+    },
+    {
+      "id": "server4",
+      "position": {
+        "x": 1000,
+        "y": 520
+      },
+      "labelPosition": "right",
+      "icon": "server"
+    }
+  ],
+  "edgeAnnotations": [],
+  "aliasEndpointAnnotations": [],
+  "viewerSettings": {
+    "style": "telemetry-style",
+    "linkLabelMode": "telemetry-style",
+    "lastNonTelemetryLinkLabelMode": "show-all",
+    "telemetryNodeSizePx": 70,
+    "telemetryInterfaceSizePercent": 100,
+    "showRateLabels": false,
+    "autoCreateTrafficRateAnnotations": false,
+    "gridLineWidth": 0.1,
+    "gridStyle": "dotted",
+    "gridColor": null,
+    "gridBgColor": null
+  }
+}

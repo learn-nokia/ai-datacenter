@@ -1,5 +1,4 @@
 cat >/usr/bin/sping <<'EOF'
-
 #!/bin/bash
 set -e
 
@@ -8,8 +7,9 @@ if [ "$EUID" -ne 0 ]; then
   exec sudo "$0" "$@"
 fi
 
-SRC="${1:-}"
-DST="${2:-}"
+SERVICE="${1:-}"
+SRC="${2:-}"
+DST="${3:-}"
 
 # Defaults
 SIZE=""
@@ -17,87 +17,186 @@ INTERVAL=""
 COUNT="5"
 DF="no"
 IP_MODE="ipv4"
+FORCE_RAIL="rail1"
 
 usage() {
   echo "Usage:"
   echo "  sping <source-server> <destination-server> [options]"
-  echo "  sping <source-server> <rail1|rail2> [options]"
+  echo "  sping <macvrf|ipvrf|GPU1|GPU2> <source-server> <destination-server> [options]"
+  echo
+  echo "Services:"
+  echo "  macvrf              Frontend MAC-VRF / VLAN 1001 / 10.10.10.0/24"
+  echo "  ipvrf               L3VPN / IP-VRF service using VLAN 201/202"
+  echo "  GPU1                Backend IPv6 rail1 / eth11 path"
+  echo "  GPU2                Backend IPv6 rail2 / eth12 path"
   echo
   echo "Options:"
-  echo "  ipv4                Use frontend IPv4 fabric path. Default for server-to-server."
-  echo "  ipv6                Use backend IPv6 path."
+  echo "  ipv4                Use IPv4. Default for macvrf/ipvrf."
+  echo "  ipv6                Use IPv6. Required/recommended for GPU1/GPU2."
   echo "  size <bytes>        Ping payload size"
   echo "  interval <seconds>  Ping interval"
   echo "  count <number>      Number of packets"
   echo "  df                  Set Don't Fragment bit for IPv4"
   echo
-  echo "IPv4 examples:"
+  echo "Examples:"
   echo "  sping s1 s2"
-  echo "  sping s1 s2 count 100"
-  echo "  sping s1 s2 size 1400 count 100"
-  echo "  sping s1 s2 size 1400 interval 0.01 count 10000"
-  echo "  sping s1 s2 size 4000 df count 10"
+  echo "  sping macvrf s1 s2"
+  echo "  sping ipvrf s1 s2"
+  echo "  sping GPU1 s1 s2 ipv6"
+  echo "  sping GPU2 s1 s2 ipv6"
+  echo "  sping GPU1 s3 s4 ipv6"
+  echo "  sping GPU2 s3 s4 ipv6"
+  echo "  sping macvrf s1 s2 count 100"
+  echo "  sping macvrf s1 s2 size 1400 interval 0.01 count 10000"
+  echo "  sping ipvrf s1 s2 size 1400 count 10"
   echo
-  echo "IPv6 examples:"
-  echo "  sping s1 s2 ipv6"
-  echo "  sping s2 s1 ipv6"
-  echo "  sping s3 s4 ipv6"
-  echo "  sping s1 rail1"
-  echo "  sping s1 rail2"
-  echo "  sping s2 rail1 count 10"
+  echo "Current mappings:"
+  echo "  MAC-VRF:"
+  echo "    s1 = 10.10.10.1 via b1.1001"
+  echo "    s2 = 10.10.10.2 via b2.1001"
+  echo "    s3 = 10.10.10.3 via b3.1001"
+  echo "    s4 = 10.10.10.4 via b4.1001"
   echo
-  echo "Notes:"
-  echo "  IPv4 ping total frame size is payload + 28 bytes."
-  echo "  IPv6 ping total frame size is payload + 48 bytes."
-  echo "  For IPv4 MTU 1500, max payload with DF is 1472."
-  echo "  For IPv6 MTU 1500, max payload is usually 1452."
+  echo "  IP-VRF / L3VPN:"
+  echo "    s1 = 10.20.1.1 via b1.201"
+  echo "    s2 = 10.20.2.2 via b2.202"
+  echo "    s3 = 10.20.1.3 via b3.201"
+  echo "    s4 = 10.20.2.4 via b4.202"
+  echo
+  echo "  GPU1 / rail1 / eth11:"
+  echo "    s1 = fd00:100:101:1::2 via s1eth11"
+  echo "    s2 = fd00:100:101:2::2 via s2eth11"
+  echo "    s3 = fd00:100:101:3::3 via s3eth11"
+  echo "    s4 = fd00:100:101:4::4 via s4eth11"
+  echo
+  echo "  GPU2 / rail2 / eth12:"
+  echo "    s1 = fd00:100:201:1::2 via s1eth12"
+  echo "    s2 = fd00:100:201:2::2 via s2eth12"
+  echo "    s3 = fd00:100:201:3::3 via s3eth12"
+  echo "    s4 = fd00:100:201:4::4 via s4eth12"
+  echo
   exit 1
 }
 
-if [[ "$SRC" == "-h" || "$SRC" == "--help" || -z "$SRC" || -z "$DST" ]]; then
+if [[ "$SERVICE" == "-h" || "$SERVICE" == "--help" || -z "$SERVICE" ]]; then
+  usage
+fi
+
+# Supported styles:
+#   sping s1 s2
+#   sping macvrf s1 s2
+#   sping ipvrf s1 s2
+#   sping GPU1 s1 s2 ipv6
+#   sping GPU2 s1 s2 ipv6
+case "$SERVICE" in
+  macvrf|mac|l2)
+    SERVICE="macvrf"
+    IP_MODE="ipv4"
+    SRC="${2:-}"
+    DST="${3:-}"
+    shift 3
+    ;;
+  ipvrf|ip|l3|l3vpn)
+    SERVICE="ipvrf"
+    IP_MODE="ipv4"
+    SRC="${2:-}"
+    DST="${3:-}"
+    shift 3
+    ;;
+  GPU1|gpu1)
+    SERVICE="gpu"
+    IP_MODE="ipv6"
+    FORCE_RAIL="rail1"
+    SRC="${2:-}"
+    DST="${3:-}"
+    shift 3
+    ;;
+  GPU2|gpu2)
+    SERVICE="gpu"
+    IP_MODE="ipv6"
+    FORCE_RAIL="rail2"
+    SRC="${2:-}"
+    DST="${3:-}"
+    shift 3
+    ;;
+  *)
+    # Backward compatible default: sping s1 s2
+    SERVICE="macvrf"
+    IP_MODE="ipv4"
+    SRC="${1:-}"
+    DST="${2:-}"
+    shift 2
+    ;;
+esac
+
+if [[ -z "$SRC" || -z "$DST" ]]; then
   usage
 fi
 
 case "$SRC" in
   server1|s1)
-    VRF="vrf-s1"
-    SRC_IF4="b1.1001"
-    SRC_IP4="10.10.10.1"
-    SRC_IF6_PRIMARY="s1eth11"
-    SRC_IP6_PRIMARY="fd00:100:101:1::2"
-    SRC_RAIL1_GW="fd00:100:101:1::1"
-    SRC_RAIL2_GW="fd00:100:201:1::1"
     SRC_NAME="server1"
+    VRF="vrf-s1"
+
+    MAC_IF="b1.1001"
+    MAC_IP="10.10.10.1"
+
+    IPVRF_IF="b1.201"
+    IPVRF_IP="10.20.1.1"
+
+    RAIL1_IF="s1eth11"
+    RAIL1_IP="fd00:100:101:1::2"
+
+    RAIL2_IF="s1eth12"
+    RAIL2_IP="fd00:100:201:1::2"
     ;;
   server2|s2)
-    VRF="vrf-s2"
-    SRC_IF4="b2.1001"
-    SRC_IP4="10.10.10.2"
-    SRC_IF6_PRIMARY="s2eth11"
-    SRC_IP6_PRIMARY="fd00:100:101:2::2"
-    SRC_RAIL1_GW="fd00:100:101:2::1"
-    SRC_RAIL2_GW="fd00:100:201:2::1"
     SRC_NAME="server2"
+    VRF="vrf-s2"
+
+    MAC_IF="b2.1001"
+    MAC_IP="10.10.10.2"
+
+    IPVRF_IF="b2.202"
+    IPVRF_IP="10.20.2.2"
+
+    RAIL1_IF="s2eth11"
+    RAIL1_IP="fd00:100:101:2::2"
+
+    RAIL2_IF="s2eth12"
+    RAIL2_IP="fd00:100:201:2::2"
     ;;
   server3|s3)
-    VRF="vrf-s3"
-    SRC_IF4="b3.1001"
-    SRC_IP4="10.10.10.3"
-    SRC_IF6_PRIMARY="s3eth11"
-    SRC_IP6_PRIMARY="fd00:100:101:3::3"
-    SRC_RAIL1_GW="fd00:100:101:3::1"
-    SRC_RAIL2_GW="fd00:100:201:3::1"
     SRC_NAME="server3"
+    VRF="vrf-s3"
+
+    MAC_IF="b3.1001"
+    MAC_IP="10.10.10.3"
+
+    IPVRF_IF="b3.201"
+    IPVRF_IP="10.20.1.3"
+
+    RAIL1_IF="s3eth11"
+    RAIL1_IP="fd00:100:101:3::3"
+
+    RAIL2_IF="s3eth12"
+    RAIL2_IP="fd00:100:201:3::3"
     ;;
   server4|s4)
-    VRF="vrf-s4"
-    SRC_IF4="b4.1001"
-    SRC_IP4="10.10.10.4"
-    SRC_IF6_PRIMARY="s4eth11"
-    SRC_IP6_PRIMARY="fd00:100:101:4::4"
-    SRC_RAIL1_GW="fd00:100:101:4::1"
-    SRC_RAIL2_GW="fd00:100:201:4::1"
     SRC_NAME="server4"
+    VRF="vrf-s4"
+
+    MAC_IF="b4.1001"
+    MAC_IP="10.10.10.4"
+
+    IPVRF_IF="b4.202"
+    IPVRF_IP="10.20.2.4"
+
+    RAIL1_IF="s4eth11"
+    RAIL1_IP="fd00:100:101:4::4"
+
+    RAIL2_IF="s4eth12"
+    RAIL2_IP="fd00:100:201:4::4"
     ;;
   *)
     echo "ERROR: unsupported source server: $SRC"
@@ -107,42 +206,38 @@ esac
 
 case "$DST" in
   server1|s1)
-    DST_IP4="10.10.10.1"
-    DST_IP6="fd00:100:101:1::2"
     DST_NAME="server1"
+    DST_MAC_IP="10.10.10.1"
+    DST_IPVRF_IP="10.20.1.1"
+    DST_RAIL1_IP="fd00:100:101:1::2"
+    DST_RAIL2_IP="fd00:100:201:1::2"
     ;;
   server2|s2)
-    DST_IP4="10.10.10.2"
-    DST_IP6="fd00:100:101:2::2"
     DST_NAME="server2"
+    DST_MAC_IP="10.10.10.2"
+    DST_IPVRF_IP="10.20.2.2"
+    DST_RAIL1_IP="fd00:100:101:2::2"
+    DST_RAIL2_IP="fd00:100:201:2::2"
     ;;
   server3|s3)
-    DST_IP4="10.10.10.3"
-    DST_IP6="fd00:100:101:3::3"
     DST_NAME="server3"
+    DST_MAC_IP="10.10.10.3"
+    DST_IPVRF_IP="10.20.1.3"
+    DST_RAIL1_IP="fd00:100:101:3::3"
+    DST_RAIL2_IP="fd00:100:201:3::3"
     ;;
   server4|s4)
-    DST_IP4="10.10.10.4"
-    DST_IP6="fd00:100:101:4::4"
     DST_NAME="server4"
-    ;;
-  rail1|r1)
-    IP_MODE="ipv6"
-    DST_IP6="$SRC_RAIL1_GW"
-    DST_NAME="rail1-gateway"
-    ;;
-  rail2|r2)
-    IP_MODE="ipv6"
-    DST_IP6="$SRC_RAIL2_GW"
-    DST_NAME="rail2-gateway"
+    DST_MAC_IP="10.10.10.4"
+    DST_IPVRF_IP="10.20.2.4"
+    DST_RAIL1_IP="fd00:100:101:4::4"
+    DST_RAIL2_IP="fd00:100:201:4::4"
     ;;
   *)
-    echo "ERROR: unsupported destination: $DST"
+    echo "ERROR: unsupported destination server: $DST"
     usage
     ;;
 esac
-
-shift 2
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -183,23 +278,64 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ "$IP_MODE" == "ipv4" ]]; then
-  CMD=(ip vrf exec "$VRF" ping -I "$SRC_IF4" -c "$COUNT")
+if [[ "$SERVICE" == "macvrf" ]]; then
+  SRC_IF="$MAC_IF"
+  SRC_IP="$MAC_IP"
+  DST_IP="$DST_MAC_IP"
+
+  CMD=(ip vrf exec "$VRF" ping -I "$SRC_IF" -c "$COUNT")
 
   [[ -n "$SIZE" ]] && CMD+=(-s "$SIZE")
   [[ -n "$INTERVAL" ]] && CMD+=(-i "$INTERVAL")
   [[ "$DF" == "yes" ]] && CMD+=(-M do)
 
-  CMD+=("$DST_IP4")
+  CMD+=("$DST_IP")
 
-  echo "PING ${DST_NAME} (${DST_IP4}) from ${SRC_NAME} (${SRC_IP4}) via ${SRC_IF4}"
-  echo "CMD: ${CMD[*]}"
+  echo "PING MAC-VRF: ${SRC_NAME} (${SRC_IP}) -> ${DST_NAME} (${DST_IP})"
+  echo "SRC VRF : ${VRF}"
+  echo "SRC IF  : ${SRC_IF}"
+  echo "CMD     : ${CMD[*]}"
   echo
 
   exec "${CMD[@]}"
 fi
 
-CMD=(ip vrf exec "$VRF" ping -6 -c "$COUNT")
+if [[ "$SERVICE" == "ipvrf" ]]; then
+  SRC_IF="$IPVRF_IF"
+  SRC_IP="$IPVRF_IP"
+  DST_IP="$DST_IPVRF_IP"
+
+  CMD=(ip vrf exec "$VRF" ping -I "$SRC_IF" -c "$COUNT")
+
+  [[ -n "$SIZE" ]] && CMD+=(-s "$SIZE")
+  [[ -n "$INTERVAL" ]] && CMD+=(-i "$INTERVAL")
+  [[ "$DF" == "yes" ]] && CMD+=(-M do)
+
+  CMD+=("$DST_IP")
+
+  echo "PING IP-VRF/L3VPN: ${SRC_NAME} (${SRC_IP}) -> ${DST_NAME} (${DST_IP})"
+  echo "SRC VRF : ${VRF}"
+  echo "SRC IF  : ${SRC_IF}"
+  echo "CMD     : ${CMD[*]}"
+  echo
+
+  exec "${CMD[@]}"
+fi
+
+# GPU backend IPv6
+if [[ "$FORCE_RAIL" == "rail2" ]]; then
+  SRC_IF="$RAIL2_IF"
+  SRC_IP="$RAIL2_IP"
+  DST_IP="$DST_RAIL2_IP"
+  GPU_PATH="GPU2"
+else
+  SRC_IF="$RAIL1_IF"
+  SRC_IP="$RAIL1_IP"
+  DST_IP="$DST_RAIL1_IP"
+  GPU_PATH="GPU1"
+fi
+
+CMD=(ip vrf exec "$VRF" ping -6 -I "$SRC_IF" -c "$COUNT")
 
 [[ -n "$SIZE" ]] && CMD+=(-s "$SIZE")
 [[ -n "$INTERVAL" ]] && CMD+=(-i "$INTERVAL")
@@ -208,14 +344,16 @@ if [[ "$DF" == "yes" ]]; then
   echo "NOTE: df is mainly for IPv4. IPv6 does not fragment in transit."
 fi
 
-CMD+=("$DST_IP6")
+CMD+=("$DST_IP")
 
-echo "PING6 ${DST_NAME} (${DST_IP6}) from ${SRC_NAME} (${SRC_IP6_PRIMARY})"
-echo "CMD: ${CMD[*]}"
+echo "PING ${GPU_PATH} BACKEND IPv6: ${SRC_NAME} (${SRC_IP}) -> ${DST_NAME} (${DST_IP})"
+echo "SRC VRF : ${VRF}"
+echo "SRC IF  : ${SRC_IF}"
+echo "PATH    : ${GPU_PATH}"
+echo "CMD     : ${CMD[*]}"
 echo
 
 exec "${CMD[@]}"
-
 EOF
 
 chmod +x /usr/bin/sping
