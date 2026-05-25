@@ -89,11 +89,11 @@ Start with these views:
 
 1. Check the **Topology** View in EDA by typing `Topologies` in the search bar. Double click on `Physical`.
 
-2. Check the **Nodes** Inventory in EDA
+2. Check the **Nodes** Inventory in EDA by typing `Nodes`.
 
-3. Check the **Interfaces** Inventory in EDA
+3. Check **Interfaces** Inventory in EDA by typing `Interfaces`.
 
-4. Check the **Alarms** section.
+4. Check **Alarms** sectionby typing `Alarms`.
 
 ![Alt text](./images/alarm.png)
 
@@ -127,10 +127,13 @@ It includes fields such as **Parent Alarms**, **Probable Cause**, and **Remedial
 
 ### Step 5: Build Datacenter Fabric using EDA Intent
 
+In the search bar type `Fabric`. Click on `Fabric`. On the top right, click on `Create`.
+
+Input the parameters provided below to create the Intent. 
+
 This step creates the EDA **Fabric** resource that builds the underlay network between the leaf and spine switches.  
 
 The fabric uses **eBGP** as the underlay routing protocol and uses **IPv6 unnumbered** on inter-switch links.  
-
 EDA automatically selects the leaf, spine, and inter-switch links based on node labels, then allocates system IPv4 addresses and BGP ASNs from the configured pools.
 
 Create Fabric Underlay intent with the following parameters:
@@ -139,15 +142,15 @@ Create Fabric Underlay intent with the following parameters:
 | --------------------------- | ----------------------------------- |
 | Fabric Name                 | `myfabric`                          |
 | Namespace                   | `eda`                               |
-| Inter-Switch Link Selector  | `eda.nokia.com/role=interSwitch`    |
-| Inter-Switch Link MTU       | `9200`                              |
-| Inter-Switch Addressing     | `IPv6 Unnumbered`                   |
+| System IPv4 Pool            | `systemipv4-pool`                   |
 | Leaf Node Selector          | `eda.nokia.com/role=leaf`           |
 | Spine Node Selector         | `eda.nokia.com/role=spine`          |
+| Inter-Switch Link Selector  | `eda.nokia.com/role=interSwitch`    |
+| Inter-Switch Addressing     | `IPv6 Unnumbered`                   |
+| Inter-Switch Link MTU       | `9200`                              |
 | Underlay Protocol           | `EBGP`                              |
 | Underlay ASN Pool           | `asn-pool`                          |
 | Overlay Protocol            | `EBGP`                              |
-| System IPv4 Pool            | `systemipv4-pool`                   |
 
 
 ### Verification
