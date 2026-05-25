@@ -85,7 +85,7 @@
 # OpenAI API key
 # -----------------------------------------------------------------------------|
 
-LLM_API_KEY ?= "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"
+LLM_API_KEY ?= ""
 
 # KPT Core setters config file
 #  A path to the apply-setters function config file that holds the values
