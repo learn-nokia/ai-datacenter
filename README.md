@@ -553,3 +553,111 @@ Reach us directly on the [Nokia EDA Community Discord](https://discord.com/chann
 - [Nokia EDA Product Page](https://www.nokia.com/data-center-networks/data-center-fabric/event-driven-automation/)
 - [Nokia SR Linux Learn Site](https://learn.srlinux.dev/)
 - [ Nokia Validated Designs](https://www.nokia.com/data-center-networks/validated-designs/)
+
+
+## Soluions to Activities
+
+**Activity 1: Datacenter Fabric**
+
+```
+apiVersion: fabrics.eda.nokia.com/v1
+kind: Fabric
+metadata:
+  name: myfabric
+  namespace: eda
+spec:
+  interSwitchLinks:
+    ipMTU: 9200
+    linkSelectors:
+      - eda.nokia.com/role=interSwitch
+    unnumbered: IPv6
+  leafs:
+    leafNodeSelectors:
+      - eda.nokia.com/role=leaf
+  overlayProtocol:
+    bgp: {}
+    protocol: EBGP
+  spines:
+    spineNodeSelectors:
+      - eda.nokia.com/role=spine
+  systemPoolIPv4: systemipv4-pool
+  underlayProtocol:
+    bgp:
+      asnPool: asn-pool
+    protocols:
+      - EBGP
+```
+
+**Activity 2: Overlay Virtual Network L2 MAC VRF**
+
+```
+apiVersion: services.eda.nokia.com/v2
+kind: VirtualNetwork
+metadata:
+  name: macvrf1001
+  namespace: eda
+spec:
+  bridgeDomains:
+    - name: macvrf1001
+      spec:
+        encapOptions:
+          vxlan:
+            tunnelIndexPool: tunnel-index-pool
+            vniPool: vni-pool
+        eviPool: evi-pool
+        macLearning:
+          agingTimeSeconds: 300
+          enabled: true
+        type: EVPNVXLAN
+  bridgeInterfaces: []
+  irbInterfaces: []
+  routedInterfaces: []
+  routers: []
+  vlans:
+    - name: macvrf1001
+      spec:
+        bridgeDomain: macvrf1001
+        interfaceSelectors:
+          - eda.nokia.com/macvrf1001
+        vlanID: '1001'
+```
+
+**Activity 3: AI Backend Datacenter Fabric**
+
+```
+apiVersion: aifabrics.eda.nokia.com/v1
+kind: Backend
+metadata:
+  name: ai-backend-fabric
+  namespace: eda
+spec:
+  addressAllocation:
+    edaManagedIPv6:
+      leafIndexPoolScope: Global
+      prefixLength: '64'
+    type: EDAManagedIPv6
+  asnPool: asn-pool
+  gpuIsolationGroups:
+    - interfaceSelectors:
+        - eda.nokia.com/gpu_group = nvidia
+      name: nvidia
+    - interfaceSelectors:
+        - eda.nokia.com/gpu_group = amd
+      name: amd
+  ipMTU: 4200
+  rocev2QoS:
+    ecnMaxDropProbabilityPercent: 100
+    ecnSlopeMaxThresholdPercent: 80
+    ecnSlopeMinThresholdPercent: 5
+    pfcDeadlockDetectionTimerMs: 750
+    pfcDeadlockRecoveryTimerMs: 750
+    queueMaximumBurstSizeBytes: 1024000
+  stripes:
+    - asnPool: asn-pool
+      name: stripe1
+      nodeSelectors:
+        - eda.nokia.com/role = rail
+      stripeID: 1
+      systemPoolIPv4: systemipv4-pool
+  systemPoolIPv4: systemipv4-pool
+```
