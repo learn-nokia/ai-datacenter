@@ -28,20 +28,6 @@ The workshop topology represents a simplified AI/HPC data center fabric with a f
 
 The backend rail switches are labeled as `RAIL 1` and `RAIL 2`. These backend leaf switches are used to build the AI backend fabric using Nokia EDA intent.
 
-> **Topology Placeholder:** Add the main workshop topology diagram here.
->
-> The diagram should show:
->
-> * `Spine Switch 1` and `Spine Switch 2`
-> * `Frontend LEAF 1` through `Frontend LEAF 4`
-> * `Server 1` through `Server 4`
-> * `Backend LEAF 1` and `Backend LEAF 2`
-> * Spine-to-front-end leaf links
-> * Front-end leaf-to-server links
-> * Server-to-backend leaf links
-> * The EDA management and operations plane
-> * Grafana or telemetry collector connectivity, if shown in the lab
-
 ## Access Details
 
 | Component | How to Access | Example |
@@ -111,10 +97,10 @@ Start with these views:
 
 ![Alt text](./images/alarm.png)
 
-Nokia EDA provides an **Alarms** view to monitor active and historical issues across managed resources, such as fabrics, nodes, interfaces, services, and applications.  
-Alarms can be filtered, acknowledged, temporarily suppressed, reviewed in detail, and managed through both the EDA UI and `edactl`.  
-Each alarm includes useful operational context such as severity, resource, namespace, source kind, occurrence count, and last change time.  
-Alarm policies can also be configured to automatically suppress, acknowledge, or change severity for matching alarms. 
+Nokia EDA provides an **Alarms** view to monitor active and historical issues across managed resources, such as fabrics, nodes, interfaces, services, and applications.  Alarms can be filtered, acknowledged, temporarily suppressed, reviewed in detail, and managed through both the EDA UI and `edactl`.  
+
+Each alarm includes useful operational context such as severity, resource, namespace, source kind, occurrence count, and last change time.  Alarm policies can also be configured to automatically suppress, acknowledge, or change severity for matching alarms. 
+
 
 The **Remediation** section is especially important because it helps operators understand **why the alarm happened and what action to take next**.  
 It includes fields such as **Parent Alarms**, **Probable Cause**, and **Remedial Action**, helping users move from alarm visibility to guided troubleshooting and faster recovery. 
@@ -142,7 +128,9 @@ It includes fields such as **Parent Alarms**, **Probable Cause**, and **Remedial
 ### Step 5: Build Datacenter Fabric using EDA Intent
 
 This step creates the EDA **Fabric** resource that builds the underlay network between the leaf and spine switches.  
+
 The fabric uses **eBGP** as the underlay routing protocol and uses **IPv6 unnumbered** on inter-switch links.  
+
 EDA automatically selects the leaf, spine, and inter-switch links based on node labels, then allocates system IPv4 addresses and BGP ASNs from the configured pools.
 
 Create Fabric Underlay intent with the following parameters:
@@ -425,8 +413,7 @@ Example: `sping gpu1 s1 s2`
 
 ## Activity 4: Intent Based Rollback and Revert 
 
-Nokia EDA uses **network-wide transactions** to safely apply intent-based changes across multiple devices.  
-When an operator creates or updates an EDA resource, EDA calculates the required device-level changes and applies them as a single transaction.
+Nokia EDA uses **network-wide transactions** to safely apply intent-based changes across multiple devices. When an operator creates or updates an EDA resource, EDA calculates the required device-level changes and applies them as a single transaction.
 
 The key benefit is **atomic change control**: either all affected devices are updated successfully, or the transaction fails and partial configuration is avoided. This helps reduce operational risk when deploying multi-device services such as fabrics, MAC-VRFs, IP-VRFs, ACLs, and backend network intents. 
 
