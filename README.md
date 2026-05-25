@@ -87,7 +87,7 @@ Start with these views:
 
 ![Alt text](./images/eda1.png)
 
-1. Check the **Topology** View in EDA by typing `topology` in the search bar.
+1. Check the **Topology** View in EDA by typing `Topologies` in the search bar. Double click on `Physical`.
 
 2. Check the **Nodes** Inventory in EDA
 
