@@ -529,11 +529,14 @@ Open the first terminal and connect to `server1` using the `connect` utility:
 
 ```
 ib_send_bw -d rxe2 -F --ipv6 --ipv6-addr -x 2 -R --report_gbits
+```
 
+The sercer will start and wait for the client to connect, showing the message below:
+
+```
 ************************************
 * Waiting for client to connect... *
 ************************************
-
 ```
 
 **Client Side - Server2**
@@ -544,6 +547,43 @@ Open a second terminal and connect to `server2` using the `connect` utility:
 
 ```
 ib_send_bw -d rxe1 -F --ipv6 --ipv6-addr -x 2 -R --report_gbits fd00:60::11
+```
+
+Sample Output:
+
+```
+WARNING: BW peak won't be measured in this run.
+
+************************************
+* Waiting for client to connect... *
+************************************
+---------------------------------------------------------------------------------------
+                    Send BW Test
+Dual-port       : OFF          Device         : rxe2
+Number of qps   : 1            Transport type : IB
+Connection type : RC           Using SRQ      : OFF
+PCIe relax order: ON
+ibv_wr* API     : OFF
+RX depth        : 512
+CQ Moderation   : 1
+Mtu             : 1024[B]
+Link type       : Ethernet
+GID index       : 2
+Max inline data : 0[B]
+rdma_cm QPs     : ON
+Data ex. method : rdma_cm
+---------------------------------------------------------------------------------------
+Waiting for client rdma_cm QP to connect
+Please run the same command with the IB/RoCE interface IP
+---------------------------------------------------------------------------------------
+local address: LID 0000 QPN 0x0015 PSN 0xae3810
+GID: 253:00:00:96:00:00:00:00:00:00:00:00:00:00:00:17
+remote address: LID 0000 QPN 0x0014 PSN 0xae3810
+GID: 253:00:00:96:00:00:00:00:00:00:00:00:00:00:00:17
+---------------------------------------------------------------------------------------
+#bytes     #iterations    BW peak[Gb/sec]    BW average[Gb/sec]   MsgRate[Mpps]
+65536      1000             0.00               6.19               0.011814
+---------------------------------------------------------------------------------------
 ```
 
 ### Latency Test
