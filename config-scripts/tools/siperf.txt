@@ -1,7 +1,11 @@
-cat >/usr/bin/siperf <<'EOF'
-
+sudo tee /usr/bin/siperf >/dev/null <<'EOF'
 #!/bin/bash
 set -euo pipefail
+
+# Auto-sudo because docker + ip vrf exec need root/cgroup permission
+if [ "$EUID" -ne 0 ]; then
+  exec sudo "$0" "$@"
+fi
 
 SRC="${1:-}"
 DST="${2:-}"
@@ -154,7 +158,7 @@ cat "$LOG" || true
 
 trap - EXIT
 docker exec "$DST_CONT" pkill -x iperf 2>/dev/null || true
-
 EOF
 
-chmod +x /usr/bin/siperf
+sudo chmod +x /usr/bin/siperf
+sudo chown root:root /usr/bin/siperf

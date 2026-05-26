@@ -210,8 +210,7 @@ A MAC-VRF provides Layer-2 connectivity for endpoints within the same subnet/VLA
 
 ### Step 1: Create an Intent for the MAC-VRF 
 
-Navigate to Virtual Networks > Virtual Networks section in EDA in the left navigation pane.
-In the search bar type `virtual`. Click on `Virtual Networks` on bottom left. On the top right, click on `Create`.
+Navigate to **Virtual Networks > Virtual Networks** section in EDA in the left navigation pane and click on `Create` button on the top right corner.
 
 ![Alt text](./images/macvrf1.png)
 
@@ -223,16 +222,30 @@ Create MAC-VRF intent with the following parameters:
 | -------------------- | -------------------------- |
 | Virtual Network Name | `macvrf1001`               |
 | Namespace            | `eda`                      |
+| Specification:        |                            |
+
+**Under the Bridge Domain section > Click on `+ Add` and input the following parameters:**
+
+| Bridge Domain        | Value                      |
+| -------------------- | -------------------------- |
 | Bridge Domain Name   | `macvrf1001`               |
 | Service Type         | `EVPNVXLAN`                |
-| VLAN Name            | `macvrf1001`               |
-| VLAN ID              | `1001`                     |
-| Interface Selector   | `eda.nokia.com/macvrf1001` |
-| MAC Learning         | `Enabled`                  |
+| EVI Allocation Pool             | `evi-pool`                          |
+| Bridge Domain Spec,  Encapsulation Options  | enable                     |
+| Bridge Domain Spec , Encapsulation Options,  VXLAN Options | enable     |
+| VNI Allocation Pool | `vni-pool`     |
+| Tunnel Index Allocation Pool | `tunnel-index-pool`     |
+| Bridge Domain Spec, MAC Learning| enable     |
 | MAC Aging Time       | `300` seconds              |
-| VNI Pool             | `vni-pool`                 |
-| EVI Pool             | `evi-pool`                 |
-| Tunnel Index Pool    | `tunnel-index-pool`        |
+
+**Click Add (bottom right) to save the Bridge Domain configuration**
+
+| VLAN        | Value                      |
+| -------------------- | -------------------------- |
+| VLAN NAME              | macvrf1001                     |
+| Bridge Domain.         | macvrf1001                     |
+| Interface Selector  | `eda.nokia.com/macvrf1001` |
+| VLAN ID         | `1001`                     |
 
 
 EDA uses the configured interface selector to discover all interfaces labeled eda.nokia.com/macvrf1001. Any matching server-facing interfaces are automatically bound to the MAC-VRF bridge domain for VLAN 1001.
@@ -346,13 +359,46 @@ In the search bar type `ai`. Click on `AI Backends` on bottom left. On the top r
 |---|---|
 | Name | `aibackend` |
 | Namespace | `eda` |
-| IP MTU | `4200` |
+| Specification: |  |
 | System IPv4 Pool | `ip-pool` |
 | ASN Pool | `asn-pool` |
-| Address Allocation | `EDAManagedIPv6` |
-| IPv6 Prefix Length | `64` |
-| Leaf Index Pool Scope | `Global` |
+| IP MTU | `4200` |
 
+**Enter Stripe Configuration by clicking on `Add+`**
+
+| Stripe | Value |
+|---|---|
+| Stripe Name | `stripe1` |
+| Stripe ID | `1` |
+| System IPv4 Pool | `systemipv4-pool` |
+| ASN Pool | `asn-pool` |
+| Node Selector | `eda.nokia.com/role = rail` |
+
+*Click  on ADD and return to the main form to enter the GPU isolation group configuration.*
+
+
+**Enter GPU Isolation Configuration by clicking on `Add+`**
+
+
+| GPU Isolation Group | Interface Selector |
+|---|---|
+| Isolation Group  | `nvidia` |
+| Interface Selector | `eda.nokia.com/gpu_group = nvidia` |
+
+**Food for Thought:** Add another isolation group for `amd` GPUs with selector `eda.nokia.com/gpu_group = ???`. 
+
+**Hint:** If you are unaware of the labels for AMD GPU interfaces, check the interface inventory or topology view in EDA to find the correct label key and value.
+
+*Click  on ADD and return to the main form*
+
+
+| Field | Value |
+|---|---|
+| Address Allocation | enable |
+| Type | | EDAManagedIPv6  |
+|EDA Managed Allocation Properties | |
+| Prefix Length | 64 |
+| Leaf Index Pool Scope | Global |
 ---
 
 #### Stripe Configuration
@@ -372,37 +418,7 @@ In this example, EDA discovers all nodes labeled with the rail role and includes
 
 ---
 
-#### GPU Isolation Groups
-
-GPU isolation groups allow the backend fabric to separate GPU traffic based on labels.  
-EDA automatically binds interfaces to the correct isolation group using interface selectors.
-
-| GPU Isolation Group | Interface Selector |
-|---|---|
-| `Isolation Group` | `nvidia` |
-| Interface Selector |
-| `nvidia` | `eda.nokia.com/gpu_group = nvidia` |
-Click on `Add+` next to GPU Isolation Groups again to add amd isolation group
-| `amd` | `eda.nokia.com/gpu_group = amd` |
-
----
-
-#### RoCEv2 QoS Parameters
-
-The backend intent also defines RoCEv2 QoS behavior for lossless AI transport, including ECN marking, PFC deadlock detection, recovery timers, and queue burst sizing.
-
-| Parameter | Value |
-|---|---|
-| ECN Max Drop Probability | `100%` |
-| ECN Slope Min Threshold | `5%` |
-| ECN Slope Max Threshold | `80%` |
-| PFC Deadlock Detection Timer | `750 ms` |
-| PFC Deadlock Recovery Timer | `750 ms` |
-| Queue Maximum Burst Size | `1024000 bytes` |
-
----
-
-After submitting the form, EDA creates the `Backend` intent and automatically builds the AI backend fabric using the selected rail nodes and GPU-facing interfaces.
+After filling out the Intent form, Either `Add to Basket`, or `Commit` the form, EDA creates the `Backend` intent and automatically builds the AI backend fabric using the selected rail nodes and GPU-facing interfaces.
 
 The fabric is configured with IPv6 addressing, ASN allocation, RoCEv2 QoS parameters, and GPU isolation groups for `nvidia` and `amd` workloads.
 
