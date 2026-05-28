@@ -277,7 +277,7 @@ EDA uses the configured interface selector to discover all interfaces labeled ed
 
 Open `sping` from the terminal and generate ping across servers to confirm connectivity.
 
-examples: `sping s1 s4`
+Example: `sping s1 s4 interval 0.01 size 8000 count 10000`, Open Grafana Dashboard and you can observe the traffic passing across links
 
 **Config Verification**
 
@@ -418,8 +418,8 @@ In the search bar type `ai`. Click on `AI Backends` on bottom left. On the top r
 | Field | Value |
 |---|---|
 | Address Allocation | enable |
-| Type | | EDAManagedIPv6  |
-|EDA Managed Allocation Properties | |
+| Type | EDAManagedIPv6  |
+|EDA Managed Allocation Properties | enable |
 | Prefix Length | 64 |
 | Leaf Index Pool Scope | Global |
 ---
