@@ -35,7 +35,7 @@ The backend rail switches are labeled as `RAIL 1` and `RAIL 2`. These backend le
 | Nokia EDA | Browser | `https://<Number>.workxshop.net:9443` |
 | Grafana | Browser | `https://<Number>.workxshop.net:9443/core/httpproxy/v1/grafana/d/Telemetry_Playground/` |
 | Leaf1/2/3/4/ RAIL1/2 | CLI | Run command `connect`, Select the number |
-| Server 1/2/3/4 | Container shell | `docker exec -it server1 bash` |
+| Server 1/2/3/4 | Container shell | Run command `connect`, Select the number |
 
 ### IP Mapping
 
@@ -58,15 +58,34 @@ Intent-based networking means the operator describes the desired outcome instead
 
 In this lab, the desired outcome is an AI backend fabric with routed IPv6 links, IP-VRF based isolation, backend rail switches, GPU/server-facing interfaces, and validation of RDMA traffic between simulated servers.
 
-### Step 1: Login to Nokia EDA
+### Step 1: Login to Lab resources.
+
+#### 1.1 Login to EDA (Event Driven Automation UI)
 
 Open a browser and navigate to:
 
 ```text
-https://<No/Number>.workxshop.net:9443>
+https://<Lab_ID_Number>.workxshop.net:9443
+```
+Login using the credentials provided by the instructor.
+
+#### 1.2 Open Grafana Dashboard
+
+Open a browser and navigate to:
+
+```
+https://<Lab_id_Number>.workxshop.net:9443/core/httpproxy/v1/grafana/d/Telemetry_Playground/
 ```
 
-Login using the credentials provided by the instructor.
+#### 1.3 Open Lab Instance SSH 
+
+Use Putty/SecureCRT to create ssh connection
+
+```
+ssh nokiauser@<Lab_ID_Number>.workxshop.net
+```
+Password: provided by instructor in the post card
+
 
 ### Step 2: Review the EDA layout
 
@@ -151,6 +170,10 @@ Create Fabric Underlay intent with the following parameters:
 | Underlay Protocol           | `EBGP`                              |
 | Underlay ASN Pool           | `asn-pool`                          |
 | Overlay Protocol            | `EBGP`                              |
+
+
+Before commiting, click on the `Dry Run` or `Add to Basket` button to validate the intent and preview the generated configuration changes and then you can `Commit` the intent to apply the configuration to the network devices.
+
 
 
 ### Verification
