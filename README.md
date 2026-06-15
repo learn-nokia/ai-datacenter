@@ -261,8 +261,9 @@ Create MAC-VRF intent with the following parameters:
 | Bridge Domain Spec, MAC Learning| enable     |
 | MAC Aging Time       | `300` seconds              |
 
-**Click Add (bottom right) to save the Bridge Domain configuration**
+**Click Add (bottom right) to save the Bridge Domain configuration.**
 
+**Scroll down to VLAN. Click Add.**
 | VLAN        | Value                      |
 | -------------------- | -------------------------- |
 | VLAN NAME              | macvrf1001                     |
@@ -270,6 +271,7 @@ Create MAC-VRF intent with the following parameters:
 | Interface Selector  | `eda.nokia.com/macvrf1001` |
 | VLAN ID         | `1001`                     |
 
+**Click Add (bottom right) to save the VLAN configuration.**
 
 EDA uses the configured interface selector to discover all interfaces labeled eda.nokia.com/macvrf1001. Any matching server-facing interfaces are automatically bound to the MAC-VRF bridge domain for VLAN 1001.
 
